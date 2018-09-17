@@ -1,4 +1,5 @@
 # country-sec
 student mob dev app project
 
-# I'm simply just writing some stuff to test a change in this branch...
+# this is project repository for our student mobile apps dev group project
+# tasked by student client group to create what is essentially a "Global Security & Laws Travel App"
