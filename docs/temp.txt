@@ -1,1 +1,2 @@
-
+Added folders to repository as per suggestion for GitHub project ...
+ref: https://github.com/kriasoft/Folder-Structure-Conventions
