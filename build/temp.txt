@@ -1,1 +1,2 @@
-
+setup folder structure as per suggestions for GitHub projects
+ref: https://github.com/kriasoft/Folder-Structure-Conventions
