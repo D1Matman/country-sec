@@ -6,21 +6,13 @@
 --Ignors Upper case. 
 
 
---[[
-TODO's 
-Error in Logic, - Reject all entries from column ONE (All the headers are here ie Country Code, Country.) when 
-printing to the screen.
-If you search C country shows up, and if you omit it from the list afganistan takes its place (yeah my spelling sux)
-]]--
-
 display.setStatusBar( display.DarkStatusBar )
-
-
+-- Vars
 CountryArray = {}
 CountryToDisplay = {}
 flag = 0
 FirstTimeFlag = 0
-
+--Groups
 ButtonGroup = display.newGroup()
 debugGroup = display.newGroup()
 
@@ -28,7 +20,7 @@ local widget = require( "widget" )
 local defaultField
 
 
---Search For complete string ie "Australia" case sensitive. NOT USED
+--Search For complete string ie "Australia" case sensitive. NOT USED might use for system search.
 function findit (array,search)
 	daLength = #array
 	for i = 1, daLength  do
@@ -40,13 +32,11 @@ function findit (array,search)
 	end
 	return 0
 end
---TODO REMOVE DISCLUDE FROM FUNCTION. CREATE WALK AROUND. 
 
 --Make a Country Array
 --Ignors commas, "
 --Convers Case to lower
---Disclude = a string, for example the column header like: country that is at position one of every column
-function makeArray (aString,disclude)
+function makeArray (aString)
 	local constring = ""
 	local array = {}
 	for i = 0, #aString + 1 do
@@ -54,7 +44,7 @@ function makeArray (aString,disclude)
 		if (c~= "," and c ~= "\"") then --CSV separator and errors in Flat File
 			constring = string.lower(constring..c)
 			else
-				if(constring ~= "")then
+				if(constring ~= "")then -- I am leaving this but it does nothing
 					array[#array + 1] = constring
 					constring = ""
 				else
@@ -69,13 +59,13 @@ end
 --Search partial string, not case sensitive. ie "A" or "Aust" etc
 -- Display results as Buttons
 --
-function findChars(array,search)
+function findChars(array,search) 
 	local someString = ""
 	local startpos = 200
 	local counter = 0 --match counter
 	local flag = 0
-	
-	for i = 1, #array  do
+	--Comapare each charater in the string, count the matches
+	for i = 2, #array  do --Start at index 2 to disclude the headers ie Country, Country Code etc.**WALK AROUND!!
 		local success = 0
 		someString = array[i]
 		for k = 1, #someString do
@@ -87,13 +77,15 @@ function findChars(array,search)
 						success = success + 0	
 			end
 		end
+		--If the matches are the lenght of the string
+		--Create a Country button.
 		if (success == #search)then
 			
-			counter = counter + 1
+			counter = counter + 1 -- For button Spacing on Y axis.See var 'top' below
 			print("Found "..array[i].. " at index position "..i) --Debug		
-			flag = 1
+			flag = 1 -- Found search term Flag
 			local Sstr = i
-			local Sstr = widget.newButton
+			local Sstr = widget.newButton -- Make Button
 			{
 				shape = "roundedRect",
 				fontSize = 17,
@@ -110,13 +102,13 @@ function findChars(array,search)
 				cornerRadius=8,
 				--onRelease = handleButtonEvent --Not needed have event listener below
 			}
-			
+			-- Button event Handler for each button created. 
 			Sstr:addEventListener( "touch", handleButtonEvent ) 
-			ButtonGroup:insert(Sstr)
+			ButtonGroup:insert(Sstr) --Make a group so we can remove them from the screen.
 			
 		end		
 	end
-	if(flag ~= 1)then
+	if(flag ~= 1) then --Search term Not Found.
 		myText = display.newText(debugGroup,"Search Term Not Found!\n    Please Try Again",display.contentCenterX,startpos + (20*counter), 240, 300, native.systemFont, 22)
 		myText:setFillColor( 0.8, 0, 0 )
 		debugGroup:insert(myText)
@@ -124,9 +116,9 @@ function findChars(array,search)
 	end
 end
 
---
 --Get Row Data (Country Data)
---From the file
+--From the flat file
+--
 function getRow(row)
 	local path = system.pathForFile( "wjp.csv", system.ResourceDirectory )
 	local file = io.open(path,"r")
@@ -144,14 +136,14 @@ function getRow(row)
 	end
 end
  
- --Render Row
- -- Renders scollable TableView of country data
+ -- Render Row
+ -- Renders/draws scollable TableView of country data
  local function onRowRender( event )
-	FirstTimeFlag = 1
+	FirstTimeFlag = 1 --Are there any tables being displayed? see function textListener below
     -- Get reference to the row group
     row = event.row
 	
-    -- Cache the row "contentWidth" and "contentHeight" because the row bounds can change as children objects are added
+    -- TODO******** Cache the row "contentWidth" and "contentHeight" because the row bounds can change as children objects are added
     local rowHeight = 100
     --local rowWidth = 3000
  
@@ -167,13 +159,12 @@ end
 
 end
 
---
 -- Function to handle button events 
 -- Country Button Pressed!!!
 -- 
 function handleButtonEvent( event,self )
 
-		--clear DebugGroup
+		--clear DebugGroup Remove from Screen!
 		display.remove( debugGroup )
 		dubugGroup = nil
 		debugGroup = display.newGroup()
@@ -181,7 +172,7 @@ function handleButtonEvent( event,self )
     if ( event.phase == "ended" ) then
         -- Code executed when the touch lifts off the object
         print( "touch ended on object " .. tostring(event.target.id) )
-
+-- Create Table View
 		tableView = widget.newTableView(
 			{
 			left = 0,
@@ -194,28 +185,28 @@ function handleButtonEvent( event,self )
 			hideBackground = true
 			}
 		)
-		for i = 1, 57 do
+		for i = 1, 57 do          -- 57 the amount of lines in the flat file! TODO full proof this!
 			response = getRow(i)
 			local dummyArray = {}
 			local titleArray = {}
-			dummyArray = makeArray(response,"country code")
+			dummyArray = makeArray(response)
 			CountryToDisplay[i] = dummyArray[event.target.id]
 			titleArray[i] = dummyArray[1]
 			print(CountryToDisplay[i])
 			
 			--print(dummyArray[i])
-			dummyArray = nil
+			dummyArray = nil -- Kill It.
 			
 			local isCategory = false
-			local rowHeight = 70 ----------------------------------------ROW HEIGHT
+			local rowHeight = 70 ----------------------------------------ROW HEIGHT get the majic right.
 			local rowColor = { default={ 0, 0, 0}, over={ 0, 0, 0} }
 			local lineColor = { 0, 0, 0 }
 			
 			local SectionString = titleArray[i]
 			local DataString = CountryToDisplay[i]
-			SectionString = SectionString:gsub("%a", string.upper,1)
+			SectionString = SectionString:gsub("%a", string.upper,1) --Make First letter a capital
 			DataString = DataString:gsub("%a", string.upper,1)
-			local id = SectionString.." - "..DataString
+			local id = SectionString.." = "..DataString --Concat output to display
 			
 -- Insert a row into the tableView
 			tableView:insertRow(
@@ -225,7 +216,7 @@ function handleButtonEvent( event,self )
 					rowColor = rowColor,
 					lineColor = lineColor,
 					id = id,
-				    --params = {}  -- Include custom data in the row
+				    --params = {}  -- Include custom data in the row               **TODO but not needed.
 				}
 			)		
 		end
@@ -242,12 +233,12 @@ end
 -- ButtonGroup: Country Buttons
 
 local function textListener( event )
-		-- Clear Debug Group
+		-- Clear Debug Group Remove form display
 		display.remove( debugGroup )
 		dubugGroup = nil
 		debugGroup = display.newGroup()
 		
-		--Clear Button Group
+		--Clear Button Group Remove form display
 		display.remove( ButtonGroup )
 		ButtonGroup = nil
 		ButtonGroup = display.newGroup()
@@ -257,7 +248,7 @@ local function textListener( event )
 		if (FirstTimeFlag == 1) then
 			tableView:deleteAllRows()
 		end
-		
+		-- Enter letter is entered on the phone keyboard.
 		if (  event.phase == "submitted" ) then
 	
 			--Remove ButtonGroup and start another. Clears the results text. 
@@ -265,7 +256,7 @@ local function textListener( event )
 			ButtonGroup = nil
 			ButtonGroup = display.newGroup()
 			
-			-- Get text in box
+			-- Get text string from text box
 			local someString = event.target.text
 			if someString ~= "" then
 				anotherString = string.lower(someString)
@@ -273,9 +264,9 @@ local function textListener( event )
 				findChars(CountryArray, anotherString)
 				defaultField.text = ""
 				
-				else
+				else -- Text box is empty
 				print("BLANK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-					myText = display.newText(debugGroup,"Please enter a search term!",display.contentCenterX,display.contentCenterY, 240, 300, native.systemFont, 22)
+					myText = display.newText(debugGroup,"Please enter a search term!",display.contentCenterX,display.contentCenterY-180, native.systemFont, 22)
 					myText:setFillColor( 0.8, 0, 0 )
 					debugGroup:insert(myText)
 			end	
@@ -288,8 +279,8 @@ end
  
 -- Variables
 country = ""
-coun = {}
-code = {}
+--coun = {}
+--code = {}
 position = 0 
 
 local composer = require( "composer" )
@@ -304,15 +295,15 @@ local file = io.open(path, "r")
 if file then
 	--print("File Found")
 	country = file:read("*l")
-	code = file:read("*l")
-	region = file:read("*l")
+	--code = file:read("*l")
+	--region = file:read("*l")
 	io.close (file)
 
 	else
 		print("Not working") --No file/Error
 end
 
-CountryArray = makeArray(country,"Country")
+CountryArray = makeArray(country)
 print(country)
 -- Create text field
 defaultField = native.newTextField( 160, 25, 180, 30 )
@@ -320,11 +311,12 @@ defaultField:addEventListener( "userInput", textListener )
 SearchTitle = display.newText("Search",display.contentCenterX,0, 0, 0, native.systemFont, 14)
 SearchTitle:setFillColor( 0.1, 0.7, 0.3 )
 
+-- XXXX logo
 local image = display.newImageRect( "XXXXlogo.png", 90, 30 )
 image.x = display.contentCenterX
 image.y = 460
 
--- Hide the object
+-- Show the objectimage (XXX) Logo
 image.isVisible = true
  
  
