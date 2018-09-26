@@ -27,8 +27,6 @@ end
 local widget = require( "widget" )
 
 local bg2
---local titleHeader
-
 local overallButton, governmentButton, corruptionButton, rightsButton, securityButton, justiceButton 
 local backButton
 
@@ -180,7 +178,7 @@ function scene:create( event )
 		}
 	)	
 	
-	-- Button widget for the view ranking button
+	-- Button widget for the Go Back button
 	backButton = widget.newButton(
 		{
 			onRelease = goBack,

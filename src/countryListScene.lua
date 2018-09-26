@@ -52,7 +52,7 @@ function scene:create( event )
 	titleHeader = display.newText( uiGroup, "Country 'Flag' List Screen\nPlaceholder Scene", 160, 75,	"Arial", 20)
 	titleHeader:setFillColor( 0.8, 0.5, 0.5 )	
 
-	-- Button widget for the view ranking button
+	-- Button widget for the Go Back button
 	backButton = widget.newButton(
 		{
 			onRelease = goBack,
