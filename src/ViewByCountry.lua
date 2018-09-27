@@ -290,7 +290,7 @@ end
 		yaxis = 420
 	end
 	print(CountryArray[arr[i]])
-	someString = CountryArray[arr[i]]..".png"
+	someString = "flags/"..CountryArray[arr[i]]..".png"
 	image2 = display.newImageRect(flagGroup,someString, 50, 50)
 	text2 = display.newText(flagGroup,displayArray[arr[i]],posiArray[i] +20,yaxis + 35,90,0,native.systemFont,13)
 	image2.x = (posiArray[i])
@@ -365,7 +365,7 @@ end
 	if(i > 10)then
 		yaxis = 320
 	end
-	someString = CountryArray[counter]..".png"
+	someString = "flags/"..CountryArray[counter]..".png"
 	image2 = display.newImageRect(flagGroup,someString, 50, 50)
 	text2 = display.newText(flagGroup,displayArray[counter],posiArray[i] +20,yaxis + 35,90,0,native.systemFont,13)
 	image2.x = (posiArray[i])
