@@ -14,7 +14,7 @@ local scene = composer.newScene()
 
 -- Functions for each button on screen
 local function gotoCountryList()
-	composer.gotoScene( "countryListScene", { time=800, effect="crossFade" } )
+	composer.gotoScene( "ViewByCountry", { time=800, effect="crossFade" } )
 end
 
 local function gotoCategoryMenu()
