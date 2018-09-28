@@ -3,19 +3,12 @@ local composer = require( "composer" )
 local scene = composer.newScene()local widget = require( "widget" )
 
 
-
-display.setDefault( "background", .8,0, 0 )
-
-
- 
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 
- 
- 
- 
+
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
@@ -29,10 +22,7 @@ function scene:create( event )
 	bg2.fill = { type="image", filename="bg_blue.jpg" }
 	sceneGroup:insert( bg2 )
 	
-    --local sceneGroup = self.view
-    -- Code here runs when the scene is first created but has not yet appeared on screen
-	--display.setDefault( "background", 0.8,0, 0 )
-	-- Vars
+	-- Vars             ---------------------------------------------Double check these Vars
 	CountryArray = {}
 	CountryToDisplay = {}
 	flag = 0
@@ -42,16 +32,12 @@ function scene:create( event )
 	ButtonGroup = display.newGroup()
 	debugGroup = display.newGroup()
 	
-
-	
-	
-
 ---------------------------------------------------------------------FUNCTIONS--------------------------------------------
 -------------------------
 -- Handle Next Button
 --
 function handleNextButton (event,self)
- if ( event.phase == "ended" ) then
+ if ( "ended" == event.phase ) then
 	 print(event.target.id)
 	 print(CountryArray[event.target.id])
 	 --display.remove( flagGroup )
@@ -63,22 +49,47 @@ function handleNextButton (event,self)
 end
 
 ----------------------
---Handle Flag Press
+--Handle Flag next button Press
 --
-function handleFlagEvent (event,self)
+function handleFlagEventForward (event)
 		
-		print(counter)
+		--print("Forward Counter Button",counter)-- Debug
 		
-		if (counter > 110)then
+		if (counter > 113)then
 			counter = 2
 		end
-		if ( event.phase == "ended" ) then
-			displayFlags()
-		end
+		print(counter)
+		displayFlags()
+	
 		
 	
 end
 
+----------------------
+--Handle Flag back button press
+--
+function handleFlagEventBack (event)
+		
+		print(counter)
+		counter = counter - 30
+		if (counter == 85)then
+			counter = 92
+		end
+		if (counter < 2)then
+			counter = 107
+		end
+		if (counter < 14)then
+			counter = 2
+		end
+		
+		print(counter)
+	    displayFlags()
+		
+end
+
+----------------------
+-- GoBack
+--
 local function goBack()
 	defaultField:removeSelf()
 	-- Completely remove the scene, including its scene object
@@ -90,7 +101,6 @@ end
 --Call findChars to get results 
 -- Should: Clear Buttons, Clear Rows, Clear Debug
 -- ButtonGroup: Country Buttons
-
 local function textListener( event )
 		-- Clear Debug Group Remove form display
 		display.remove( debugGroup )
@@ -126,7 +136,7 @@ local function textListener( event )
 				defaultField.text = ""
 				
 				else -- Text box is empty
-				print("BLANK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+				--print("BLANK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 					myText = display.newText(debugGroup,"Please enter a search term!",display.contentCenterX,display.contentCenterY-180, native.systemFont, 22)
 					myText:setFillColor( 0.8, 0, 0 )
 					debugGroup:insert(myText)
@@ -136,6 +146,7 @@ local function textListener( event )
 		end
 end
 
+---------------------------
 --Make a Country Array
 --Ignors commas, "
 --Convers Case to lower
@@ -159,9 +170,10 @@ function makeArray (aString)
 	return array
 end
 
---Make an Array
+-------------------------------------
+--Make an Array - contains capitals
 --Ignors commas, "
-
+--
 function rawArray (aString)
 	local constring = ""
 	local array = {}
@@ -182,9 +194,9 @@ function rawArray (aString)
 	return array
 end
 
-
+-------------------------------------------------------------------
 --Search partial string, not case sensitive. ie "A" or "Aust" etc
--- Display results as Buttons
+--Display results as Buttons
 --
 function findChars(array,search) 
 	
@@ -210,43 +222,18 @@ function findChars(array,search)
 		--If the matches are the lenght of the string
 		--Create a Country button.
 
-		if (success == #search)then
-			
-			
+		if (success == #search)then		
 			counter = counter + 1 -- For button Spacing on Y axis.See var 'top' below
-			print("Found "..array[i].. " at index position "..i) --Debug	
+			--print("Found "..array[i].. " at index position "..i) --Debug	
 			foundArray[k] = i
 			k = k +1
 			flag = 1 -- Found search term Flag
-			--[[
-			local Sstr = i
-			local Sstr = widget.newButton -- Make Button
-			{
-				shape = "roundedRect",
-				fontSize = 17,
-				left = 35,
-				top = (30 * counter) + 20,
-				width = 250,
-				height = 20,
-				id = i,
-				label = array[i],
-				strokeWidth=12,
-				labelColor = { default={ 0, 0.3, 1 }, over={ 1, 1, 1, 0.5 } },
-				fillColor = { default={ .1, 0.2, 0.7, 0.5 },over={ 1, 0.2, 0.5, 1 }}, 
-				emboss=false,
-				cornerRadius=8,
-				--onRelease = handleButtonEvent --Not needed have event listener below
-			}
-			-- Button event Handler for each button created. 
-			Sstr:addEventListener( "touch", handleButtonEvent ) 
-			ButtonGroup:insert(Sstr) --Make a group so we can remove them from the screen.
-			-]]
 			
 		end		
 	end
 	
 	for i = 1, #foundArray do
-	print(foundArray[i])
+	--print(foundArray[i])
 	end
 	displayF(foundArray)
 	
@@ -258,25 +245,27 @@ function findChars(array,search)
 	end
 end
 
+----------------------------
+--Display flags from search
+--
 function displayF(arr)
-local posiArray = {display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100, display.contentCenterX - 100, display.contentCenterX , 
-					display.contentCenterX + 100,display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,display.contentCenterX - 100, 
-					display.contentCenterX , display.contentCenterX + 100,display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100} 	
+local posiArray = {	display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
+					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
+					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
+					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
+					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100} 	
 
 CountryArray = makeArray(country)
 displayArray = rawArray(country)
-	display.remove( flagGroup )
-		flagGroup = nil
-		flagGroup = display.newGroup()	
+display.remove( flagGroup )
+flagGroup = nil
+flagGroup = display.newGroup()	
 		
-		
-
---couter = nums
- for i = 1, #arr   do
+for i = 1, #arr   do
 
 	if (i < 4) then
 		yaxis = 80
-end
+	end
 	if(i > 3 and i < 7)then
 		yaxis = 160
 	end
@@ -289,13 +278,13 @@ end
 	if(i > 12 )then
 		yaxis = 420
 	end
-	print(CountryArray[arr[i]])
+	--print(CountryArray[arr[i]])
 	someString = "flags/"..CountryArray[arr[i]]..".png"
 	image2 = display.newImageRect(flagGroup,someString, 50, 50)
 	text2 = display.newText(flagGroup,displayArray[arr[i]],posiArray[i] +20,yaxis + 35,90,0,native.systemFont,13)
 	image2.x = (posiArray[i])
 	image2.y = yaxis
-	print(someString)
+	--print(someString)
 	image2.id = arr[i]
 	image2:addEventListener( "touch", handleNextButton )
 	flagGroup:insert(image2)
@@ -303,35 +292,34 @@ end
 	i = i + 1
 	
 	end
-	--return counter
-	--counter = counter + (i-2)
 	sceneGroup:insert( flagGroup )
 end
 
-
+----------------------------
 --Display Flags
 --
-function displayFlags(arr)
-local posiArray = {0,display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100, display.contentCenterX - 100, display.contentCenterX , 
-					display.contentCenterX + 100,display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,display.contentCenterX - 100, 
-					display.contentCenterX , display.contentCenterX + 100} 	
+function displayFlags()
+local posiArray ={	display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
+					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
+					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
+					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
+					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100} 	
 
 CountryArray = makeArray(country)
 displayArray = rawArray(country)
-	display.remove( flagGroup )
-		flagGroup = nil
-		flagGroup = display.newGroup()	
-		
-		
+display.remove( flagGroup )
+flagGroup = nil
+flagGroup = display.newGroup()		
+--Next lot of flags		
 local nextButton = widget.newButton(
 	{
 	    label = "NEXT",
-        onEvent = handleFlagEvent,
+        --onEvent = handleFlagEventForward,
         emboss = false,
         -- Properties for a rounded rectangle button
         shape = "roundedRect",
 		fontSize = 17,
-        width = 100,
+        width = 80,
         height = 20,
 		id = i,
         cornerRadius = 12,
@@ -340,50 +328,71 @@ local nextButton = widget.newButton(
         strokeWidth = 12
 	}
 	)
+	nextButton:addEventListener( "tap", handleFlagEventForward )
 nextButton.x = display.contentCenterX + 90
-nextButton.y = display.contentCenterY + 200
-i = 2
-
+nextButton.y = display.contentCenterY + 255
 flagGroup:insert(nextButton)
-
---couter = nums
- for counter = counter, counter + 11 do
-	if(counter > 114)then 
-		i = 4
-		counter = 0
-		break
+local backwardsButton = widget.newButton(
+	{
+	    label = "BACK",
+        --onEvent = handleFlagEventBack,
+        emboss = false,
+        -- Properties for a rounded rectangle button
+        shape = "roundedRect",
+		fontSize = 17,
+        width = 80,
+        height = 20,
+		id = i,
+        cornerRadius = 12,
+       labelColor = { default={ 0, 0.3, 1 }, over={ 1, 1, 1, 0.5 } },
+				fillColor = { default={ .1, 0.2, 0.7, 0.5 },over={ 1, 0.2, 0.5, 1 }},
+        strokeWidth = 12
+	}
+	)
+	backwardsButton:addEventListener( "tap", handleFlagEventBack )
+backwardsButton.x = display.contentCenterX - 65
+backwardsButton.y = display.contentCenterY + 255
+flagGroup:insert(backwardsButton)
+i = 1
+--print("For loopStart",counter)
+	for counter = counter, counter + 14 do
+		if(counter > 114)then 
+				
+			break
+		end
+		if (i < 4) then
+			yaxis = 80
+		end
+		if(i > 3 and i < 7)then
+			yaxis = 160
+		end
+		if(i > 6 and i < 10)then
+			yaxis = 240
+		end
+		if(i > 9 and i < 13)then
+			yaxis = 320
+		end
+			if(i > 12)then
+			yaxis = 400
+		end
+		
+		someString = "flags/"..CountryArray[counter]..".png"
+		image2 = display.newImageRect(flagGroup,someString, 50, 50)
+		text2 = display.newText(flagGroup,displayArray[counter],posiArray[i] +20,yaxis + 35,90,0,native.systemFont,13)
+		image2.x = (posiArray[i])
+		image2.y = yaxis
+		--print(someString)
+		image2.id = counter
+		image2:addEventListener( "touch", handleNextButton )
+		flagGroup:insert(image2)
+		flagGroup:insert(text2)
+		i = i + 1		
 	end
-	if (i < 5) then
-		yaxis = 80
-end
-	if(i > 4 and i < 8)then
-		yaxis = 160
-	end
-	if(i > 7 and i < 11)then
-		yaxis = 240
-	end
-	if(i > 10)then
-		yaxis = 320
-	end
-	someString = "flags/"..CountryArray[counter]..".png"
-	image2 = display.newImageRect(flagGroup,someString, 50, 50)
-	text2 = display.newText(flagGroup,displayArray[counter],posiArray[i] +20,yaxis + 35,90,0,native.systemFont,13)
-	image2.x = (posiArray[i])
-	image2.y = yaxis
-	print(someString)
-	image2.id = counter
-	image2:addEventListener( "touch", handleNextButton )
-	flagGroup:insert(image2)
-	flagGroup:insert(text2)
-	i = i + 1
-	
-	end
-	--return counter
-	counter = counter + (i-2)
+	counter = counter + (i-1)
 	sceneGroup:insert( flagGroup )
 end
 
-
+------------------------------------
 -- Function to handle button events 
 -- Country Button Pressed!!!
 -- 
@@ -394,12 +403,9 @@ function handleButtonEvent( event,self )
 		dubugGroup = nil
 		debugGroup = display.newGroup()
 		
-		
-
     if ( event.phase == "ended" ) then
         -- Code executed when the touch lifts off the object
-        print( "touch ended on object " .. tostring(event.target.id) )
--- Create Table View
+        --print( "touch ended on object " .. tostring(event.target.id) )
 		tableView = widget.newTableView(
 			{
 			left = 0,
@@ -419,7 +425,7 @@ function handleButtonEvent( event,self )
 			dummyArray = makeArray(response)
 			CountryToDisplay[i] = dummyArray[event.target.id]
 			titleArray[i] = dummyArray[1]
-			print(CountryToDisplay[i])
+			--print(CountryToDisplay[i])
 			
 			--print(dummyArray[i])
 			dummyArray = nil -- Kill It.
@@ -454,6 +460,8 @@ return true  -- Prevents tap/touch propagation to underlying objects
 end
 	
 ----------------------------------------------------------------Fuctions End--------------------------------------------	
+------------------------------------------------------------------------------------------------------------------------
+
 flagGroup = display.newGroup()
 backLayer = display.newGroup()
 -- Create text field
@@ -464,45 +472,40 @@ defaultField:addEventListener( "userInput", textListener )
 SearchTitle = display.newText(backLayer,"Search",display.contentCenterX,0, 0, 0, native.systemFont, 14)
 SearchTitle:setFillColor( 1, 1, 1 )					
 
---defaultField:removeSelf()
+-- Button widget for the Go Back button
+backButton = widget.newButton(
+	{
+		onRelease = goBack,
+		x = 29,
+		y = 500,
+		width = 40,
+		height = 40,
+		defaultFile = "backButtonDefault.png",
+		overFile = "backButtonPressed.png"
+	}
+)
+backLayer:insert(backButton)
 
-
-	-- Button widget for the Go Back button
-	backButton = widget.newButton(
-		{
-			onRelease = goBack,
-			x = 29,
-			y = 496,
-			width = 40,
-			height = 40,
-			defaultFile = "backButtonDefault.png",
-			overFile = "backButtonPressed.png"
-		}
-	)
-	backLayer:insert(backButton)
+-- Open File
 local path = system.pathForFile( "wjp.csv", system.ResourceDirectory )
-
 local file = io.open(path, "r")
 if file then
-	--print("File Found")
+	print("File Found")
 	country = file:read("*l")
-	--code = file:read("*l")
-	--region = file:read("*l")
 	io.close (file)
 	print("File Loaded Ok")
 	else
-		print("Not working") --No file/Error
+		print("Not working") --No file/Error/file Open
 end
 
-
+-- Display Flags
 displayFlags()
-local diaplayArray = rawArray(country)
-print(country) --Debug
+--print(country) --Debug
 
-	-- insert my display objects (grouped as "uiGroup") into the "sceneGroup"
-	sceneGroup:insert( backLayer )
-	sceneGroup:insert( flagGroup )
-	
+-- insert my display objects 
+sceneGroup:insert( backLayer )
+sceneGroup:insert( flagGroup )
+
 
 end
 
