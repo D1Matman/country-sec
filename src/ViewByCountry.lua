@@ -111,9 +111,6 @@ local function textListener( event )
 		ButtonGroup = nil
 		ButtonGroup = display.newGroup()
 		
-		display.remove( flagGroup )
-		flagGroup = nil
-		
 		-- If there is a tableView on the screen at the moment. 
 		--Kill It/Remove it
 		if (FirstTimeFlag == 1) then
@@ -136,11 +133,8 @@ local function textListener( event )
 				defaultField.text = ""
 				
 				else -- Text box is empty
-				--print("BLANK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-					myText = display.newText(debugGroup,"Please enter a search term!",display.contentCenterX,display.contentCenterY-180, native.systemFont, 22)
-					myText:setFillColor( 0.8, 0, 0 )
-					debugGroup:insert(myText)
-					sceneGroup:insert(debugGroup)
+					counter = 2
+					displayFlags()
 			end	
 
 		end
