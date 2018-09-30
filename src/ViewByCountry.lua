@@ -2,12 +2,17 @@ local composer = require( "composer" )
  
 local scene = composer.newScene()local widget = require( "widget" )
 
-
+defaultField = ""
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
-
+--***************************************Needs Memory Control!!!
+local function gotoViewByCountryData()
+    defaultField:removeSelf()
+	composer.removeScene( "ViewByCountry" )
+	composer.gotoScene( "ViewByCountryData", { time=800, effect="crossFade" } )
+end
 
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
@@ -25,6 +30,7 @@ function scene:create( event )
 	-- Vars             ---------------------------------------------Double check these Vars
 	CountryArray = {}
 	CountryToDisplay = {}
+	displayArray = {}
 	flag = 0
 	FirstTimeFlag = 0
 	counter = 2
@@ -36,16 +42,15 @@ function scene:create( event )
 -------------------------
 -- Handle Next Button
 --
-function handleNextButton (event,self)
- if ( "ended" == event.phase ) then
-	 print(event.target.id)
-	 print(CountryArray[event.target.id])
-	 --display.remove( flagGroup )
-	 --flagGroup = nil
-	 --displayATable(event.target.id)
-
-	end
+function handleFlagButton (event,self)
+	print(event.target.id)
+	print(CountryArray[event.target.id])
+	composer.setVariable( "countryID", event.target.id )
+	composer.setVariable( "countryString", CountryArray[event.target.id] )
+	composer.setVariable( "countryDisplayString", displayArray[event.target.id] )
 	
+	gotoViewByCountryData()
+		
 end
 
 ----------------------
@@ -60,8 +65,6 @@ function handleFlagEventForward (event)
 		end
 		print(counter)
 		displayFlags()
-	
-		
 	
 end
 
@@ -280,7 +283,7 @@ for i = 1, #arr   do
 	image2.y = yaxis
 	--print(someString)
 	image2.id = arr[i]
-	image2:addEventListener( "touch", handleNextButton )
+	image2:addEventListener( "tap", handleFlagButton )
 	flagGroup:insert(image2)
 	flagGroup:insert(text2)
 	i = i + 1
@@ -377,7 +380,7 @@ i = 1
 		image2.y = yaxis
 		--print(someString)
 		image2.id = counter
-		image2:addEventListener( "touch", handleNextButton )
+		image2:addEventListener( "tap", handleFlagButton )
 		flagGroup:insert(image2)
 		flagGroup:insert(text2)
 		i = i + 1		
