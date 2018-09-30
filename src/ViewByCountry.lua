@@ -1,8 +1,9 @@
 local composer = require( "composer" )
- 
 local scene = composer.newScene()local widget = require( "widget" )
 
 defaultField = ""
+counter = 0
+lastValue = 0
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
@@ -11,7 +12,7 @@ defaultField = ""
 local function gotoViewByCountryData()
     defaultField:removeSelf()
 	composer.removeScene( "ViewByCountry" )
-	composer.gotoScene( "ViewByCountryData", { time=800, effect="crossFade" } )
+	composer.gotoScene( "ViewByCountryInfo", { time=800, effect="crossFade" } )
 end
 
 -- -----------------------------------------------------------------------------------
@@ -26,7 +27,6 @@ function scene:create( event )
 	local bg2 = display.newRect( bg2X, bg2Y, display.contentWidth, display.contentHeight + 100 )
 	bg2.fill = { type="image", filename="bg_blue.jpg" }
 	sceneGroup:insert( bg2 )
-	
 	-- Vars             ---------------------------------------------Double check these Vars
 	CountryArray = {}
 	CountryToDisplay = {}
@@ -43,51 +43,13 @@ function scene:create( event )
 -- Handle Next Button
 --
 function handleFlagButton (event,self)
+	Runtime:removeEventListener( "touch", touchListener )
 	print(event.target.id)
 	print(CountryArray[event.target.id])
 	composer.setVariable( "countryID", event.target.id )
 	composer.setVariable( "countryString", CountryArray[event.target.id] )
 	composer.setVariable( "countryDisplayString", displayArray[event.target.id] )
-	
-	gotoViewByCountryData()
-		
-end
-
-----------------------
---Handle Flag next button Press
---
-function handleFlagEventForward (event)
-		
-		--print("Forward Counter Button",counter)-- Debug
-		
-		if (counter > 113)then
-			counter = 2
-		end
-		print(counter)
-		displayFlags()
-	
-end
-
-----------------------
---Handle Flag back button press
---
-function handleFlagEventBack (event)
-		
-		print(counter)
-		counter = counter - 30
-		if (counter == 85)then
-			counter = 92
-		end
-		if (counter < 2)then
-			counter = 107
-		end
-		if (counter < 14)then
-			counter = 2
-		end
-		
-		print(counter)
-	    displayFlags()
-		
+	gotoViewByCountryData()		
 end
 
 ----------------------
@@ -96,51 +58,98 @@ end
 local function goBack()
 	defaultField:removeSelf()
 	-- Completely remove the scene, including its scene object
+	Runtime:removeEventListener( "touch", touchListener )
     composer.removeScene( "ViewByCountry" )
 	composer.gotoScene( "mainmenuScene", { time=800, effect="crossFade" } )
+end
+
+------------------------
+--Swipe
+--
+local function touchListener(event)
+	local phase=event.phase
+	
+	if phase == "began" then
+	
+	elseif phase == "moved" then
+		--print("event.x = "..event.x)
+		--print("event.y = "..event.y)
+	elseif phase == "ended" then
+		local eventXMove = (event.xStart - event.x)*-1
+		local eventYMove = (event.yStart - event.y)*-1
+		if (eventXMove ~= lastValue)then
+			if(eventXMove > 130) then
+				print("Over 130 -- Move LEFT"..eventXMove)
+				lastValue = eventXMove
+				print(counter)
+				counter = counter - 30
+				if (counter == 85)then
+					counter = 92
+				end
+				if (counter < 2)then
+					counter = 107
+				end
+				if (counter < 14)then
+					counter = 2
+				end
+				print(counter)
+				displayFlags()
+			end
+			if(eventXMove < -130 ) then
+				print("Over -130 -- Move RIGHT"..eventXMove)
+				lastValue = eventXMove
+				if (counter > 113)then
+					counter = 2
+				end
+				print(counter)
+				displayFlags()
+			end
+		end
+	end
 end
 
 --Get the text from the textbox ie the search term, TEXT TERM ENTERED
 --Call findChars to get results 
 -- Should: Clear Buttons, Clear Rows, Clear Debug
--- ButtonGroup: Country Buttons
+--
 local function textListener( event )
-		-- Clear Debug Group Remove form display
-		display.remove( debugGroup )
-		dubugGroup = nil
-		debugGroup = display.newGroup()
-		--Clear Button Group Remove form display
+	Runtime:removeEventListener( "touch", touchListener )
+	-- Clear Debug Group Remove form display
+	display.remove( debugGroup )
+	dubugGroup = nil
+	debugGroup = display.newGroup()
+	--Clear Button Group Remove form display
+	display.remove( ButtonGroup )
+	ButtonGroup = nil
+	ButtonGroup = display.newGroup()
+		
+		-- If there is a tableView on the screen at the moment. 
+		--Kill It/Remove it
+	if (FirstTimeFlag == 1) then
+		tableView:deleteAllRows()
+	end
+	-- Enter letter is entered on the phone keyboard.
+	if (  event.phase == "submitted" ) then
+
+		--Remove ButtonGroup and start another. Clears the results text. 
 		display.remove( ButtonGroup )
 		ButtonGroup = nil
 		ButtonGroup = display.newGroup()
 		
-		-- If there is a tableView on the screen at the moment. 
-		--Kill It/Remove it
-		if (FirstTimeFlag == 1) then
-			tableView:deleteAllRows()
-		end
-		-- Enter letter is entered on the phone keyboard.
-		if (  event.phase == "submitted" ) then
+		-- Get text string from text box
+		local someString = event.target.text
+		if someString ~= "" then
+			anotherString = string.lower(someString)
+			--Search Chars
+			findChars(CountryArray, anotherString)
+			defaultField.text = ""
 	
-			--Remove ButtonGroup and start another. Clears the results text. 
-			display.remove( ButtonGroup )
-			ButtonGroup = nil
-			ButtonGroup = display.newGroup()
-			
-			-- Get text string from text box
-			local someString = event.target.text
-			if someString ~= "" then
-				anotherString = string.lower(someString)
-				--Search Chars
-				findChars(CountryArray, anotherString)
-				defaultField.text = ""
-				
-				else -- Text box is empty
-					counter = 2
-					displayFlags()
-			end	
+			else -- Text box is empty
+				counter = 2
+				displayFlags()
+		end	
 
-		end
+	end
 end
 
 ---------------------------
@@ -154,13 +163,13 @@ function makeArray (aString)
 		local c = aString:sub(i,i)
 		if (c~= "," and c ~= "\"") then --CSV separator and errors in Flat File
 			constring = string.lower(constring..c)
+		else
+			if(constring ~= "")then -- I am leaving this but it does nothing
+				array[#array + 1] = constring
+				constring = ""
 			else
-				if(constring ~= "")then -- I am leaving this but it does nothing
-					array[#array + 1] = constring
-					constring = ""
-				else
-					constring = ""
-				end
+				constring = ""
+			end
 		end
 	end
 	array[#array + 1] = constring --One left in the array
@@ -178,13 +187,13 @@ function rawArray (aString)
 		local c = aString:sub(i,i)
 		if (c~= "," and c ~= "\"") then --CSV separator and errors in Flat File
 			constring = (constring..c)
+		else
+			if(constring ~= "")then -- I am leaving this but it does nothing
+				array[#array + 1] = constring
+				constring = ""
 			else
-				if(constring ~= "")then -- I am leaving this but it does nothing
-					array[#array + 1] = constring
-					constring = ""
-				else
-					constring = ""
-				end
+				constring = ""
+			end
 		end
 	end
 	array[#array + 1] = constring --One left in the array
@@ -199,7 +208,7 @@ function findChars(array,search)
 	
 	local someString = ""
 	local startpos = 200
-	local counter = 0 --match counter
+	Poscounter = 0 
 	local flag = 0
 	local foundArray= {}
 	k = 1
@@ -212,30 +221,27 @@ function findChars(array,search)
 			local d = search:sub(k,k)
 			if (c == d) then --If chars the same increment match count
 				success = success + 1
-					else 
-						success = success + 0	
+			else 
+				success = success + 0	
 			end
 		end
 		--If the matches are the lenght of the string
 		--Create a Country button.
 
 		if (success == #search)then		
-			counter = counter + 1 -- For button Spacing on Y axis.See var 'top' below
-			--print("Found "..array[i].. " at index position "..i) --Debug	
+			Poscounter = Poscounter + 1 -- For button Spacing on Y axis.See var 'top' below
+			print("Found "..array[i].. " at index position "..i) --Debug	
 			foundArray[k] = i
 			k = k +1
-			flag = 1 -- Found search term Flag
-			
+			flag = 1 -- Found search term Flag		
 		end		
 	end
-	
-	for i = 1, #foundArray do
-	--print(foundArray[i])
-	end
-	displayF(foundArray)
+
+	Runtime:removeEventListener( "touch", touchListener )
+	displayFSearch(foundArray)
 	
 	if(flag ~= 1) then --Search term Not Found.
-		myText = display.newText(debugGroup,"Search Term Not Found!\n    Please Try Again",display.contentCenterX,startpos + (20*counter), 240, 300, native.systemFont, 22)
+		myText = display.newText(debugGroup,"Search Term Not Found!\n    Please Try Again",display.contentCenterX,startpos + (20*Poscounter), 240, 300, native.systemFont, 22)
 		myText:setFillColor( 0.8, 0, 0 )
 		debugGroup:insert(myText)
 		sceneGroup:insert(debugGroup)
@@ -245,7 +251,8 @@ end
 ----------------------------
 --Display flags from search
 --
-function displayF(arr)
+function displayFSearch(arr)
+Runtime:removeEventListener( "touch", touchListener )
 local posiArray = {	display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
 					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
 					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
@@ -256,38 +263,39 @@ CountryArray = makeArray(country)
 displayArray = rawArray(country)
 display.remove( flagGroup )
 flagGroup = nil
-flagGroup = display.newGroup()	
+flagGroup = display.newGroup()
 		
-for i = 1, #arr   do
+	for i = 1, #arr   do
 
-	if (i < 4) then
-		yaxis = 80
-	end
-	if(i > 3 and i < 7)then
-		yaxis = 160
-	end
-	if(i > 6 and i < 10)then
-		yaxis = 240
-	end
-	if(i > 9 and i < 13)then
-		yaxis = 320
-	end
-	if(i > 12 )then
-		yaxis = 420
-	end
-	--print(CountryArray[arr[i]])
-	someString = "flags/"..CountryArray[arr[i]]..".png"
-	image2 = display.newImageRect(flagGroup,someString, 50, 50)
-	text2 = display.newText(flagGroup,displayArray[arr[i]],posiArray[i] +20,yaxis + 35,90,0,native.systemFont,13)
-	image2.x = (posiArray[i])
-	image2.y = yaxis
-	--print(someString)
-	image2.id = arr[i]
-	image2:addEventListener( "tap", handleFlagButton )
-	flagGroup:insert(image2)
-	flagGroup:insert(text2)
-	i = i + 1
-	
+		if (i < 4) then
+			yaxis = 80
+		end
+		if(i > 3 and i < 7)then
+			yaxis = 160
+		end
+		if(i > 6 and i < 10)then
+			yaxis = 240
+		end
+		if(i > 9 and i < 13)then
+			yaxis = 320
+		end
+		if(i > 12 )then
+			yaxis = 420
+		end
+		--print(CountryArray[arr[i]])
+		someString = "flags/"..CountryArray[arr[i]]..".png"
+		image3 = display.newImageRect(flagGroup,someString, 50, 50)
+		text3 = display.newText(flagGroup,displayArray[arr[i]],posiArray[i] +20,yaxis + 35,90,0,native.systemFont,13)
+		image3.x = (posiArray[i])
+		image3.y = yaxis
+		--print(someString)
+		
+		image3.id = arr[i]
+		print("ARRAY I "..arr[i])
+		image3:addEventListener( "tap", handleFlagButton )
+		flagGroup:insert(image3)
+		flagGroup:insert(text3)
+		i = i + 1	
 	end
 	sceneGroup:insert( flagGroup )
 end
@@ -308,53 +316,10 @@ display.remove( flagGroup )
 flagGroup = nil
 flagGroup = display.newGroup()		
 --Next lot of flags		
-local nextButton = widget.newButton(
-	{
-	    label = "NEXT",
-        --onEvent = handleFlagEventForward,
-        emboss = false,
-        -- Properties for a rounded rectangle button
-        shape = "roundedRect",
-		fontSize = 17,
-        width = 80,
-        height = 20,
-		id = i,
-        cornerRadius = 12,
-       labelColor = { default={ 0, 0.3, 1 }, over={ 1, 1, 1, 0.5 } },
-				fillColor = { default={ .1, 0.2, 0.7, 0.5 },over={ 1, 0.2, 0.5, 1 }},
-        strokeWidth = 12
-	}
-	)
-	nextButton:addEventListener( "tap", handleFlagEventForward )
-nextButton.x = display.contentCenterX + 90
-nextButton.y = display.contentCenterY + 255
-flagGroup:insert(nextButton)
-local backwardsButton = widget.newButton(
-	{
-	    label = "BACK",
-        --onEvent = handleFlagEventBack,
-        emboss = false,
-        -- Properties for a rounded rectangle button
-        shape = "roundedRect",
-		fontSize = 17,
-        width = 80,
-        height = 20,
-		id = i,
-        cornerRadius = 12,
-       labelColor = { default={ 0, 0.3, 1 }, over={ 1, 1, 1, 0.5 } },
-				fillColor = { default={ .1, 0.2, 0.7, 0.5 },over={ 1, 0.2, 0.5, 1 }},
-        strokeWidth = 12
-	}
-	)
-	backwardsButton:addEventListener( "tap", handleFlagEventBack )
-backwardsButton.x = display.contentCenterX - 65
-backwardsButton.y = display.contentCenterY + 255
-flagGroup:insert(backwardsButton)
 i = 1
 --print("For loopStart",counter)
 	for counter = counter, counter + 14 do
-		if(counter > 114)then 
-				
+		if(counter > 114)then 				
 			break
 		end
 		if (i < 4) then
@@ -373,7 +338,7 @@ i = 1
 			yaxis = 400
 		end
 		
-		someString = "flags/"..CountryArray[counter]..".png"
+		someString = "flags/"..CountryArray[counter]..".png" 
 		image2 = display.newImageRect(flagGroup,someString, 50, 50)
 		text2 = display.newText(flagGroup,displayArray[counter],posiArray[i] +20,yaxis + 35,90,0,native.systemFont,13)
 		image2.x = (posiArray[i])
@@ -394,7 +359,7 @@ end
 -- Country Button Pressed!!!
 -- 
 function handleButtonEvent( event,self )
-
+		Runtime:removeEventListener( "touch", touchListener )
 		--clear DebugGroup Remove from Screen!
 		display.remove( debugGroup )
 		dubugGroup = nil
@@ -453,7 +418,7 @@ function handleButtonEvent( event,self )
 		end
 			FirstTimeFlag = 1 --Are there any tables being displayed? see function textListener.
     end 
-return true  -- Prevents tap/touch propagation to underlying objects
+		return true  -- Prevents tap/touch propagation to underlying objects
 end
 	
 ----------------------------------------------------------------Fuctions End--------------------------------------------	
@@ -461,9 +426,9 @@ end
 
 flagGroup = display.newGroup()
 backLayer = display.newGroup()
--- Create text field
+
 local background = display.newImage(backLayer, "bg_map_dotted.png", 30, 140)
--- Remove the object
+
 defaultField = native.newTextField( 160, 25, 180, 30 )
 defaultField:addEventListener( "userInput", textListener )
 SearchTitle = display.newText(backLayer,"Search",display.contentCenterX,0, 0, 0, native.systemFont, 14)
@@ -497,12 +462,10 @@ end
 
 -- Display Flags
 displayFlags()
---print(country) --Debug
-
 -- insert my display objects 
 sceneGroup:insert( backLayer )
 sceneGroup:insert( flagGroup )
-
+Runtime:addEventListener("touch", touchListener)
 
 end
 
