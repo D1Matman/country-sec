@@ -17,14 +17,57 @@ local scene = composer.newScene()
 CountryArray = {}
 displayArray = {}
 CountryToDisplay = {}
-
+newArray = {}
 -----------------------------------------------------------------------------------------
 -- FUNCTIONS
 -----------------------------------------------------------------------------------------
+function getRatingLine(line)
+
+	local path = system.pathForFile( "wjp.csv", system.ResourceDirectory )
+	local file = io.open(path, "r")
+	local data
+	if file then
+	print("File Found")
+	for i = 1, line + 1 do
+		data = file:read("*l")
+			
+	end	
+		io.close (file)
+		print("File Loaded Ok")
+		return(data)
+		else
+			print("Not working") --No file/Error/file Open
+	end
+end
+
+function sortArray(arr,arr2,arr3)
+	for i = 1, #arr do
+		local k = 1
+		for k = k + i, #arr do
+
+			if(arr[i] < arr[k])then
+				local temp1 = arr[i]
+				local temp2 = arr2[i]
+				local temp3 = arr3[i]
+				arr[i] = arr[k]
+				arr2[i] = arr2[k]
+				arr3[i] = arr3[k]
+				arr[k] = temp1	
+				arr2[k] = temp2
+				arr3[k] = temp3
+	
+		end
+		end
+				
+	end
+	--print(arr)
+	return arr
+end	
 
 -- function for Go Back button
 local function goBack()
 	composer.gotoScene( "categoryMenuScene", { time=800, effect="crossFade" } )
+	composer.removeScene("ViewByRanking")
 end
 
 local function gotoViewByCountryData()
@@ -62,7 +105,7 @@ local function onRowRender( event )
     local rowHeight = 100
     --local rowWidth = 3000
 	temp = row.id
-    local rowTitle = display.newText(row,row.id, 0, 0,270,0,native.systemFont, 15 )
+    local rowTitle = display.newText(row.id, 0, 0,270,0,native.systemFont, 15 )
     --rowTitle:setFillColor( 0,0,8 )
 	
 	if (string.find(temp,"Factor")~=1)then
@@ -212,8 +255,7 @@ if file then
 		print("Not working") --No file/Error/file Open
 end
 
-CountryArray = makeArray(country)
-displayArray = rawArray(country)
+
 
 --------------------------------------------------------------------------------------
 -- user interface stuff
@@ -290,7 +332,23 @@ function scene:create( event )
 	y = -210
 
 	-- create country list arrays, based on data read from db
-
+	CountryArray = makeArray(country)
+	displayArray = rawArray(country)
+	newString = getRatingLine(composer.getVariable("LineNumber") - 1) --********************************************************************************
+	print(newString)
+	nextArray = makeArray(newString)
+	for i = 2, #nextArray do
+		print(nextArray[i])
+	end
+	print("*************************************"..composer.getVariable("LineNumber") - 1)
+	someArray = sortArray(nextArray,CountryArray,displayArray)
+		for i = 2, #nextArray do
+		print(nextArray[i])
+		print(CountryArray[i])
+		
+	end
+	
+	
 
 	for i = 2, 114 do	-- we have 113 countries to populate in ranking chart everytime
 
@@ -298,7 +356,7 @@ function scene:create( event )
 	
 		local rankstring = "rank"
 		rankstring = rankstring..i
-		_G['rank'..i] = display.newText( i, 0, 0, native.systemFont, 15 )
+		_G['rank'..i] = display.newText( i - 1, 0, 0, native.systemFont, 15 )
 		_G['rank'..i]:setFillColor( 1, 0.8, 0 )
 		_G['rank'..i].x = display.contentCenterX + rankX
 		_G['rank'..i].y = display.contentCenterY + y
@@ -306,7 +364,7 @@ function scene:create( event )
 		local rankstring = "flag"
 		rankstring = rankstring..i
 		_G['flag'..i] = display.newImageRect( ("flags/"..CountryArray[i]..".png"), 50, 50)
-		print("flags/"..CountryArray[i]..".png")
+		--print("flags/"..CountryArray[i]..".png")
 		_G['flag'..i].x = display.contentCenterX + flagX
 		_G['flag'..i].y = display.contentCenterY + y		
 		_G['flag'..i].id = i
