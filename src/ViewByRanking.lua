@@ -14,6 +14,10 @@ local composer = require( "composer" )
 
 local scene = composer.newScene()
 
+CountryArray = {}
+displayArray = {}
+CountryToDisplay = {}
+
 -----------------------------------------------------------------------------------------
 -- FUNCTIONS
 -----------------------------------------------------------------------------------------
@@ -23,27 +27,124 @@ local function goBack()
 	composer.gotoScene( "categoryMenuScene", { time=800, effect="crossFade" } )
 end
 
+local function gotoViewByCountryData()
+ 
+	composer.gotoScene( "ViewByCountryInfo", { time=800, effect="crossFade" } )
+end
 -- ScrollView listener
 local function scrollListener( event )
  
 	local phase = event.phase
-	if ( phase == "began" ) then print( "Scroll view was touched" )
-	elseif ( phase == "moved" ) then print( "Scroll view was moved" )
-	elseif ( phase == "ended" ) then print( "Scroll view was released" )
+	if ( phase == "began" ) then --print( "Scroll view was touched" )
+	elseif ( phase == "moved" ) then-- print( "Scroll view was moved" )
+	elseif ( phase == "ended" ) then --print( "Scroll view was released" )
 	end
  
 	-- In the event a scroll limit is reached...
 	if ( event.limitReached ) then
-		if ( event.direction == "up" ) then print( "Reached bottom limit" )
-		elseif ( event.direction == "down" ) then print( "Reached top limit" )
-		elseif ( event.direction == "left" ) then print( "Reached right limit" )
-		elseif ( event.direction == "right" ) then print( "Reached left limit" )
+		if ( event.direction == "up" ) then --print( "Reached bottom limit" )
+		elseif ( event.direction == "down" ) then --print( "Reached top limit" )
+		elseif ( event.direction == "left" ) then --print( "Reached right limit" )
+		elseif ( event.direction == "right" ) then --print( "Reached left limit" )
 		end
 	end
  
 	return true
 end
 
+local function onRowRender( event )
+	local temp = ""
+	
+    -- Get reference to the row group
+    row = event.row
+	
+    -- TODO******** Cache the row "contentWidth" and "contentHeight" because the row bounds can change as children objects are added
+    local rowHeight = 100
+    --local rowWidth = 3000
+	temp = row.id
+    local rowTitle = display.newText(row,row.id, 0, 0,270,0,native.systemFont, 15 )
+    --rowTitle:setFillColor( 0,0,8 )
+	
+	if (string.find(temp,"Factor")~=1)then
+		rowTitle:setFillColor( 0,0,0 ) --Is not a FACTOR (flat file) heading text colour blue.
+		else
+		rowTitle:setFillColor( 0,8,0 )	--Is a heading Colour X (green) 
+	end
+ 
+    -- Align the label left and vertically centered
+    rowTitle.anchorX = 0
+    rowTitle.x = 20      --Where inside the ROW
+    rowTitle.y = 20
+	rowHeight = rowHeight * 0.5
+	isBounceEnabled = false
+
+end
+
+function displayATable(TheEvent) -- Create Table View
+
+	tableView = widget.newTableView(
+			{
+			left = 0,
+			top = 60,
+			height = 410,        --Height and width of the actual Table View
+			width = display.ContentWidthX ,
+			onRowRender = onRowRender,
+			onRowTouch = onRowTouch,
+			listener = scrollListener,
+			hideBackground = true
+			}
+		)
+					
+		for i = 1, 46 do          -- 57 the amount of lines in the flat file! TODO full proof this! ***Had to Change this FACTOR has been removed from CSV
+			response = getRow(i)
+			local dummyArray = {}
+			local titleArray = {}
+			dummyArray = makeArray(response)
+			CountryToDisplay[i] = dummyArray[TheEvent]
+			titleArray[i] = dummyArray[1]
+			--print(CountryToDisplay[i])
+			
+			--print(dummyArray[i])
+			dummyArray = nil -- Kill It.
+			
+			local isCategory = false
+			local rowHeight = 60 ----------------------------------------ROW HEIGHT get the majic right.
+			local rowColor = { default={ 0, 0, 0,0}, over={ 0, 0, 0,0} }
+			local lineColor = { 0, 0, 0,0}
+			--print( string.find( "Hello Corona user", "Corona" ) ) 
+			
+			local SectionString = titleArray[i]
+			local DataString = CountryToDisplay[i]
+			SectionString = SectionString:gsub("%a", string.upper,1) --Make First letter a capital
+			DataString = DataString:gsub("%a", string.upper,1)
+			local id = SectionString.." = "..DataString --Concat output to display
+			
+-- Insert a row into the tableView
+			tableView:insertRow(
+				{
+					isCategory = isCategory,
+					rowHeight = rowHeight,
+					rowColor = rowColor,
+					lineColor = lineColor,
+					id = id,
+					--params = {}  -- Include custom data in the row               **TODO but not needed.
+				}
+			)		
+		end
+		
+
+		
+
+	dataGroup:insert(tableView)		
+end
+
+function handleRowButton (event,self)
+	print("Row Button: "..event.target.id)
+	composer.setVariable( "countryID", event.target.id )
+	composer.setVariable( "countryString", CountryArray[event.target.id] )
+	composer.setVariable( "countryDisplayString", displayArray[event.target.id] )
+	gotoViewByCountryData()	
+end
 
 ---------------------------
 --Make a Country Array
@@ -111,6 +212,8 @@ if file then
 		print("Not working") --No file/Error/file Open
 end
 
+CountryArray = makeArray(country)
+displayArray = rawArray(country)
 
 --------------------------------------------------------------------------------------
 -- user interface stuff
@@ -120,7 +223,7 @@ local widget = require( "widget" )
 
 local bg2
 local backButton
-local defaultField
+--local defaultField
 local searchTitle
 
 local scrollView
@@ -153,7 +256,7 @@ function scene:create( event )
 	------------------------------------------------------
 	-- PLACEHOLDER TEXTFIELD STUFF --
 	-- Display textfield
-	defaultField = native.newTextField( 160, 25, 180, 30 )
+	--defaultField = native.newTextField( 160, 25, 180, 30 )
 	--defaultField:addEventListener( "userInput", textListener )
 	searchTitle = display.newText( "Search",display.contentCenterX,0, 0, 0, native.systemFont, 14)
 	searchTitle:setFillColor( 1, 1, 1 )		
@@ -187,10 +290,9 @@ function scene:create( event )
 	y = -210
 
 	-- create country list arrays, based on data read from db
-	CountryArray = makeArray(country)
-	displayArray = rawArray(country)
 
-	for i = 1, 113 do	-- we have 113 countries to populate in ranking chart everytime
+
+	for i = 2, 114 do	-- we have 113 countries to populate in ranking chart everytime
 
 		-- Create text and image content for a row in the scroll area
 	
@@ -203,11 +305,16 @@ function scene:create( event )
 	
 		local rankstring = "flag"
 		rankstring = rankstring..i
-		_G['flag'..i] = display.newImageRect( ("flags/"..CountryArray[i + 1]..".png"), 50, 50)
+		_G['flag'..i] = display.newImageRect( ("flags/"..CountryArray[i]..".png"), 50, 50)
+		print("flags/"..CountryArray[i]..".png")
 		_G['flag'..i].x = display.contentCenterX + flagX
 		_G['flag'..i].y = display.contentCenterY + y		
+		_G['flag'..i].id = i
+		_G['flag'..i]:addEventListener("touch",handleRowButton)
 		
-		_G['name'..i] = display.newText( displayArray[i + 1], 0, 0, native.systemFont, 15 )
+		
+		
+		_G['name'..i] = display.newText( displayArray[i], 0, 0, native.systemFont, 15 )
 		_G['name'..i]:setFillColor( 1, 1, 1 )
 		_G['name'..i].x = display.contentCenterX + nameX
 		_G['name'..i].y = display.contentCenterY + y	
@@ -239,7 +346,7 @@ function scene:create( event )
 	-- insert the widget buttons into the display group "uiGroup", as there is no way to directly insert them while creating them, unlike other display objects.
 	uiGroup:insert ( searchTitle )
 	uiGroup:insert ( backButton )
-	uiGroup:insert ( defaultField )
+	--uiGroup:insert ( defaultField )
 
 	
 	-- insert my display objects (grouped as "uiGroup") into the "sceneGroup"

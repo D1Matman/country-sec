@@ -2,6 +2,7 @@ local composer = require( "composer" )
 local scene = composer.newScene()local widget = require( "widget" )
 local scene = composer.newScene()
  
+ local prevScene = composer.getSceneName("previous")
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
@@ -18,8 +19,13 @@ local scene = composer.newScene()
 local function goBack()
 
 	-- Completely remove the scene, including its scene object
+	
+	
     composer.removeScene( "ViewByCountryInfo" )
-	composer.gotoScene( "ViewByCountry", { time=800, effect="crossFade" } )
+	
+	
+	
+	composer.gotoScene( prevScene, { time=800, effect="crossFade" } )
 end
 
 --Get Row Data (Country Data)
