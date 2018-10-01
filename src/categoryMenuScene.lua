@@ -17,8 +17,11 @@ local composer = require( "composer" )
 local scene = composer.newScene()
 
 -- Functions for each button on screen
-local function gotoViewByRanking()
+local function gotoViewByRanking(event,self)
+	print("****************************"..event.target.id)
+	composer.setVariable( "LineNumber", event.target.id )
 	composer.gotoScene( "ViewByRanking", { time=800, effect="crossFade" } )
+	composer.removeScene( "categoryMenuScene" )
 end
 
 local function goBack()
@@ -61,6 +64,7 @@ function scene:create( event )
 	overallButton = widget.newButton(
 		{
 			label = "Overall Ranking",
+			id = 2,
 			labelColor = { default= {1, 1, 1, 1}, over={1, 1, 1, 0.5} },
 			fontSize = 24,
 			font = "Arial",
@@ -82,10 +86,11 @@ function scene:create( event )
 	governmentButton = widget.newButton(
 		{
 			label = "Government Accountability",
+			id = 3,
 			labelColor = { default= {1, 1, 1, 1}, over={1, 1, 1, 0.5} },
 			fontSize = 23,
 			font = "Arial",
-			--onRelease = ... gotoRankingsList ... defaulted to this category,
+			onRelease = gotoViewByRanking,
 			emboss = true,
 			shape = "roundedRect",
 			x = display.contentCenterX,
@@ -103,10 +108,11 @@ function scene:create( event )
 	corruptionButton = widget.newButton(
 		{
 			label = "Absence of Corruption",
+			id = 14,
 			labelColor = { default= {1, 1, 1, 1}, over={1, 1, 1, 0.5} },
 			fontSize = 24,
 			font = "Arial",
-			--onRelease = ... gotoRankingsList ... defaulted to this category,
+			onRelease = gotoViewByRanking,
 			emboss = true,
 			shape = "roundedRect",
 			x = display.contentCenterX,
@@ -124,11 +130,11 @@ function scene:create( event )
 	rightsButton = widget.newButton(
 		{
 			label = "Fundamental Rights",
+			id = 19,
 			labelColor = { default= {1, 1, 1, 1}, over={1, 1, 1, 0.5} },
 			fontSize = 24,
 			font = "Arial",
-			--onRelease = ... gotoRankingsList ... defaulted to this category,
-			emboss = true,
+			onRelease = gotoViewByRanking,			emboss = true,
 			shape = "roundedRect",
 			x = display.contentCenterX,
 			y = 264,
@@ -145,10 +151,11 @@ function scene:create( event )
 	securityButton = widget.newButton(
 		{
 			label = "Public Order & Security",
+			id = 28,
 			labelColor = { default= {1, 1, 1, 1}, over={1, 1, 1, 0.5} },
 			fontSize = 24,
 			font = "Arial",
-			--onRelease = ... gotoRankingsList ... defaulted to this category,
+			onRelease = gotoViewByRanking,
 			emboss = true,
 			shape = "roundedRect",
 			x = display.contentCenterX,
@@ -166,10 +173,11 @@ function scene:create( event )
 	justiceButton = widget.newButton(
 		{
 			label = "Civil & Criminal Justice",
+			id = 32,
 			labelColor = { default= {1, 1, 1, 1}, over={1, 1, 1, 0.5} },
 			fontSize = 24,
 			font = "Arial",
-			--onRelease = ... gotoRankingsList ... defaulted to this category,
+			onRelease = gotoViewByRanking,
 			emboss = true,
 			shape = "roundedRect",
 			x = display.contentCenterX,
