@@ -2,35 +2,31 @@ local composer = require( "composer" )
 local scene = composer.newScene()local widget = require( "widget" )
 local scene = composer.newScene()
  
- local prevScene = composer.getSceneName("previous")
+local prevScene = composer.getSceneName("previous") -- Get the last scene
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
- 
- 
- 
  
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
 
 
+-----------------------------------------------------------------------------------
+--Go back to previous screen
+--
+-----------------------------------------------------------------------------------
 local function goBack()
-
 	-- Completely remove the scene, including its scene object
-	
-	
     composer.removeScene( "ViewByCountryInfo" )
-	
-	
-	
 	composer.gotoScene( prevScene, { time=800, effect="crossFade" } )
 end
 
+-----------------------------------------------------------------------------------
 --Get Row Data (Country Data)
 --From the flat file
---
+-----------------------------------------------------------------------------------
 function getRow(row)
 	local path = system.pathForFile( "wjp.csv", system.ResourceDirectory )
 	local file = io.open(path,"r")
@@ -47,10 +43,12 @@ function getRow(row)
 
 	end
 end
----------------------------
+
+-----------------------------------------------------------------------------------
 --Make a Country Array
 --Ignors commas, "
 --Convers Case to lower
+-----------------------------------------------------------------------------------
 function makeArray (aString)
 	local constring = ""
 	local array = {}
@@ -70,9 +68,12 @@ function makeArray (aString)
 	array[#array + 1] = constring --One left in the array
 	return array
 end
+
+-----------------------------------------------------------------------------------
  -- Render Row
  -- Renders/draws scollable TableView of country data
  --
+ ----------------------------------------------------------------------------------
 local function onRowRender( event )
 	local temp = ""
 	
@@ -101,13 +102,17 @@ local function onRowRender( event )
 
 end
 
+-----------------------------------------------------------------------------------
+-- Display a table of country data
+--
+-----------------------------------------------------------------------------------
  function displayATable(TheEvent) -- Create Table View
 
 	tableView = widget.newTableView(
 			{
 			left = 0,
 			top = 60,
-			height = 410,        --Height and width of the actual Table View
+			height = 420,        --Height and width of the actual Table View
 			width = display.ContentWidthX ,
 			onRowRender = onRowRender,
 			onRowTouch = onRowTouch,
@@ -123,16 +128,12 @@ end
 			dummyArray = makeArray(response)
 			CountryToDisplay[i] = dummyArray[TheEvent]
 			titleArray[i] = dummyArray[1]
-			--print(CountryToDisplay[i])
-			
-			--print(dummyArray[i])
 			dummyArray = nil -- Kill It.
 			
 			local isCategory = false
-			local rowHeight = 60 ----------------------------------------ROW HEIGHT get the majic right.
+			local rowHeight = 60 ----------------------------------------ROW HEIGHT get the magic right.
 			local rowColor = { default={ 0, 0, 0,0}, over={ 0, 0, 0,0} }
 			local lineColor = { 0, 0, 0,0}
-			--print( string.find( "Hello Corona user", "Corona" ) ) 
 			
 			local SectionString = titleArray[i]
 			local DataString = CountryToDisplay[i]
@@ -140,7 +141,7 @@ end
 			DataString = DataString:gsub("%a", string.upper,1)
 			local id = SectionString.." = "..DataString --Concat output to display
 			
--- Insert a row into the tableView
+			-- Insert a row into the tableView
 			tableView:insertRow(
 				{
 					isCategory = isCategory,
@@ -152,17 +153,13 @@ end
 				}
 			)		
 		end
-		
-
-		
-
 	dataGroup:insert(tableView)		
 end
 
-	
- 
- 
+-----------------------------------------------------------------------------------
 -- create()
+-----------------------------------------------------------------------------------
+
 function scene:create( event )
  
     dataGroup = self.view
@@ -190,7 +187,8 @@ function scene:create( event )
 	local countryName = composer.getVariable( "countryString" )
 	local DisplayName = composer.getVariable( "countryDisplayString" ) 
 	cID = composer.getVariable( "countryID" )
-	print(cID)
+	
+	print(cID) -- Print Country ID DEBUG
 	
 	local someString = "flags/"..countryName..".png"
 	local flagImage = display.newImageRect(flagDataGroup,someString, 100, 100)

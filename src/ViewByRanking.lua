@@ -11,16 +11,38 @@
 -----------------------------------------------------------------------------------------
 
 local composer = require( "composer" )
-
+local widget = require( "widget" )
 local scene = composer.newScene()
 
 CountryArray = {}
 displayArray = {}
 CountryToDisplay = {}
 newArray = {}
+indexArray = {}
+scrollView = ""
 -----------------------------------------------------------------------------------------
 -- FUNCTIONS
 -----------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+-- Goto Country Data Scene
+--------------------------------------------------------------------------------
+local function gotoViewByCountryData()
+	composer.gotoScene( "ViewByCountryInfo", { time=800, effect="crossFade" } )
+end
+
+--------------------------------------------------------------------------------
+-- Function for Go Back button
+--------------------------------------------------------------------------------
+local function goBack()
+	composer.gotoScene( "categoryMenuScene", { time=800, effect="crossFade" } )
+	composer.removeScene("ViewByRanking")
+end
+
+
+--------------------------------------------------------------------------------
+-- Get Rating Line From File
+--------------------------------------------------------------------------------
 function getRatingLine(line)
 
 	local path = system.pathForFile( "wjp.csv", system.ResourceDirectory )
@@ -40,7 +62,10 @@ function getRatingLine(line)
 	end
 end
 
-function sortArray(arr,arr2,arr3)
+----------------------------------------------------------------------------------
+-- Sort an Array; Highest to lowest.
+----------------------------------------------------------------------------------
+function sortArray(arr,arr2,arr3,arr4)
 	for i = 1, #arr do
 		local k = 1
 		for k = k + i, #arr do
@@ -49,32 +74,25 @@ function sortArray(arr,arr2,arr3)
 				local temp1 = arr[i]
 				local temp2 = arr2[i]
 				local temp3 = arr3[i]
+				local temp4 = arr4[i]
 				arr[i] = arr[k]
 				arr2[i] = arr2[k]
 				arr3[i] = arr3[k]
+				arr4[i] = arr4[k]
 				arr[k] = temp1	
 				arr2[k] = temp2
 				arr3[k] = temp3
-	
-		end
+				arr4[k] = temp4
+			end
 		end
 				
 	end
-	--print(arr)
 	return arr
 end	
 
--- function for Go Back button
-local function goBack()
-	composer.gotoScene( "categoryMenuScene", { time=800, effect="crossFade" } )
-	composer.removeScene("ViewByRanking")
-end
-
-local function gotoViewByCountryData()
- 
-	composer.gotoScene( "ViewByCountryInfo", { time=800, effect="crossFade" } )
-end
--- ScrollView listener
+---------------------------------------------------------------------------------
+-- ScrollView listener.
+---------------------------------------------------------------------------------
 local function scrollListener( event )
  
 	local phase = event.phase
@@ -95,6 +113,9 @@ local function scrollListener( event )
 	return true
 end
 
+------------------------------------------------------------------------------------
+-- Render a Row.
+------------------------------------------------------------------------------------
 local function onRowRender( event )
 	local temp = ""
 	
@@ -105,7 +126,7 @@ local function onRowRender( event )
     local rowHeight = 100
     --local rowWidth = 3000
 	temp = row.id
-    local rowTitle = display.newText(row.id, 0, 0,270,0,native.systemFont, 15 )
+    local rowTitle = display.newText(row,row.id, 0, 0,270,0,native.systemFont, 15 )
     --rowTitle:setFillColor( 0,0,8 )
 	
 	if (string.find(temp,"Factor")~=1)then
@@ -123,76 +144,24 @@ local function onRowRender( event )
 
 end
 
-function displayATable(TheEvent) -- Create Table View
-
-	tableView = widget.newTableView(
-			{
-			left = 0,
-			top = 60,
-			height = 410,        --Height and width of the actual Table View
-			width = display.ContentWidthX ,
-			onRowRender = onRowRender,
-			onRowTouch = onRowTouch,
-			listener = scrollListener,
-			hideBackground = true
-			}
-		)
-					
-		for i = 1, 46 do          -- 57 the amount of lines in the flat file! TODO full proof this! ***Had to Change this FACTOR has been removed from CSV
-			response = getRow(i)
-			local dummyArray = {}
-			local titleArray = {}
-			dummyArray = makeArray(response)
-			CountryToDisplay[i] = dummyArray[TheEvent]
-			titleArray[i] = dummyArray[1]
-			--print(CountryToDisplay[i])
-			
-			--print(dummyArray[i])
-			dummyArray = nil -- Kill It.
-			
-			local isCategory = false
-			local rowHeight = 60 ----------------------------------------ROW HEIGHT get the majic right.
-			local rowColor = { default={ 0, 0, 0,0}, over={ 0, 0, 0,0} }
-			local lineColor = { 0, 0, 0,0}
-			--print( string.find( "Hello Corona user", "Corona" ) ) 
-			
-			local SectionString = titleArray[i]
-			local DataString = CountryToDisplay[i]
-			SectionString = SectionString:gsub("%a", string.upper,1) --Make First letter a capital
-			DataString = DataString:gsub("%a", string.upper,1)
-			local id = SectionString.." = "..DataString --Concat output to display
-			
--- Insert a row into the tableView
-			tableView:insertRow(
-				{
-					isCategory = isCategory,
-					rowHeight = rowHeight,
-					rowColor = rowColor,
-					lineColor = lineColor,
-					id = id,
-					--params = {}  -- Include custom data in the row               **TODO but not needed.
-				}
-			)		
-		end
-		
-
-		
-
-	dataGroup:insert(tableView)		
-end
-
+----------------------------------------------------------------------------------------
+-- Flag Button handler.
+-- Set composer vars for use in next scene
+-- Goto ViewByCountryData SCENE
+----------------------------------------------------------------------------------------
 function handleRowButton (event,self)
 	print("Row Button: "..event.target.id)
-	composer.setVariable( "countryID", event.target.id )
+	composer.setVariable( "countryID", indexArray[event.target.id] )
 	composer.setVariable( "countryString", CountryArray[event.target.id] )
 	composer.setVariable( "countryDisplayString", displayArray[event.target.id] )
 	gotoViewByCountryData()	
 end
 
----------------------------
+---------------------------------------------------------------------------------------
 --Make a Country Array
 --Ignors commas, "
 --Convers Case to lower
+---------------------------------------------------------------------------------------
 function makeArray (aString)
 	local constring = ""
 	local array = {}
@@ -213,10 +182,10 @@ function makeArray (aString)
 	return array
 end
 
--------------------------------------
+----------------------------------------------------------------------------------------
 --Make an Array - contains capitals
 --Ignors commas, "
---
+----------------------------------------------------------------------------------------
 function rawArray (aString)
 	local constring = ""
 	local array = {}
@@ -237,12 +206,167 @@ function rawArray (aString)
 	return array
 end
 
+----------------------------------------------------------------------------------------
+-- Text Box Listener
+--
+----------------------------------------------------------------------------------------
+local function textListener( event )
+	Runtime:removeEventListener( "touch", touchListener )
+	-- Clear Debug Group Remove form display
+	display.remove( debugGroup )
+	dubugGroup = nil
+	debugGroup = display.newGroup()
+	--Clear Button Group Remove form display
+	display.remove( ButtonGroup )
+	ButtonGroup = nil
+	ButtonGroup = display.newGroup()
+		
+		-- If there is a tableView on the screen at the moment. 
+		--Kill It/Remove it
+	if (FirstTimeFlag == 1) then
+		tableView:deleteAllRows()
+	end
+	-- Enter letter is entered on the phone keyboard.
+	if (  event.phase == "submitted" ) then
 
+		--Remove ButtonGroup and start another. Clears the results text. 
+		display.remove( ButtonGroup )
+		ButtonGroup = nil
+		ButtonGroup = display.newGroup()
+		
+		-- Get text string from text box
+		local someString = event.target.text
+		if someString ~= "" then
+			anotherString = string.lower(someString)
+			--Search Chars
+			findChars(CountryArray, anotherString)
+			defaultField.text = ""
+	
+			else -- Text box is empty
+				counter = 2
+				displayFlags()
+		end	
+
+	end
+end
+
+----------------------------------------------------------------------------------------
+--Search partial string, not case sensitive. ie "A" or "Aust" etc
+--Display results as Buttons
+--
+----------------------------------------------------------------------------------------
+function findChars(array,search) 
+	
+	local someString = ""
+	local startpos = 200
+	Poscounter = 0 
+	local flag = 0
+	local foundArray= {}
+	k = 1
+
+	--Comapare each charater in the string, count the matches
+	for i = 1, #array  do --Start at index 2 to disclude the headers ie Country, Country Code etc.**WALK AROUND!!
+		local success = 0
+		someString = array[i]
+		for k = 1, #someString do
+			local c = someString:sub(k,k)--Get the chars to compare
+			local d = search:sub(k,k)
+			if (c == d) then --If chars the same increment match count
+				success = success + 1
+			else 
+				success = success + 0	
+			end
+		end
+		--If the matches are the lenght of the string
+		--Create a Country button.
+
+		if (success == #search)then		
+			Poscounter = Poscounter + 1 -- For button Spacing on Y axis.See var 'top' below
+			print("Found "..array[i].. " at index position "..i) --Debug	
+			foundArray[k] = i
+			k = k +1
+			flag = 1 -- Found search term Flag		
+		end		
+	end
+
+	--[[ --Debug
+	for i = 1, #foundArray do
+		print(foundArray[i])
+	end
+	]]--
+	
+	--New scroll view
+	display.remove( scrollView )
+	scrollView = nil
+	scrollView = display.newGroup()
+	rankX = -145
+	flagX = -110
+	nameX = 0
+	y = -210
+	
+	scrollView = widget.newScrollView(
+		{
+			top = 75,
+			left = 12,
+			width = 296,
+			height = 380,
+			--scrollWidth = 0,
+			scrollHeight = 380,
+			listener = scrollListener,
+			horizontalScrollDisabled = true,
+			isBounceEnabled = false,
+			--hideBackground = true
+			backgroundColor = { 0, 0, 0,0 }
+		}
+	)
+	
+		for i = 1, #foundArray do	-- we have 113 countries to populate in ranking chart everytime
+
+		-- Create text and image content for a row in the scroll area
+	
+		local rankstring = "rank"
+		rankstring = rankstring..i
+		_G[rankstring] = display.newText( foundArray[i] - 1, 0, 0, native.systemFont, 15 )
+		_G[rankstring]:setFillColor( 1, 0.8, 0 )
+		_G[rankstring].x = display.contentCenterX + rankX
+		_G[rankstring].y = display.contentCenterY + y
+		rankstring = nil
+		
+		local rankstring = "flag"
+		rankstring = rankstring..i
+		_G[rankstring] = display.newImageRect( ("flags/"..CountryArray[foundArray[i]]..".png"), 50, 50)
+		_G[rankstring].x = display.contentCenterX + flagX
+		_G[rankstring].y = display.contentCenterY + y		
+		_G[rankstring].id = foundArray[i]
+		
+		_G[rankstring]:addEventListener("touch",handleRowButton)
+		rankstring = nil
+		
+		local rankstring = "name"
+		rankstring = rankstring..i
+		_G[rankstring] = display.newText( displayArray[foundArray[i]], 0, 0,150,0, native.systemFont, 15 )
+		_G[rankstring]:setFillColor( 1, 1, 1 )
+		_G[rankstring].x = display.contentCenterX + nameX
+		_G[rankstring].y = display.contentCenterY + y	
+		rankstring = nil
+		-- increment the row height
+		y = y + 50	
+		
+		-- add to the scrollView display group
+		scrollView:insert ( _G['rank'..i] )
+		scrollView:insert ( _G['flag'..i] )
+		scrollView:insert ( _G['name'..i] )
+
+	end
+    sceneGroup:insert(scrollView)
+end
+
+
+------------------------------------------------------Functions End---------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------------
 -- READ DATABASE
 -------------------------------------------------------------------------------------
-
 -- Open File
 local path = system.pathForFile( "wjp.csv", system.ResourceDirectory )
 local file = io.open(path, "r")
@@ -256,19 +380,12 @@ if file then
 end
 
 
-
 --------------------------------------------------------------------------------------
 -- user interface stuff
 --------------------------------------------------------------------------------------
-
-local widget = require( "widget" )
-
 local bg2
 local backButton
---local defaultField
 local searchTitle
-
-local scrollView
 
 local uiGroup
 local backLayer
@@ -281,7 +398,7 @@ local backLayer
 -- create()
 function scene:create( event )
 
-    local sceneGroup = self.view
+    sceneGroup = self.view
     
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 
@@ -295,14 +412,14 @@ function scene:create( event )
 	bg2 = display.newRect( uiGroup, bg2X, bg2Y, display.contentWidth, display.contentHeight + 100 )
 	bg2.fill = { type="image", filename="bg_blue.jpg" }
 
-	------------------------------------------------------
+	----------------------------------------------------------------------------------------
 	-- PLACEHOLDER TEXTFIELD STUFF --
 	-- Display textfield
 	--defaultField = native.newTextField( 160, 25, 180, 30 )
 	--defaultField:addEventListener( "userInput", textListener )
 	searchTitle = display.newText( "Search",display.contentCenterX,0, 0, 0, native.systemFont, 14)
 	searchTitle:setFillColor( 1, 1, 1 )		
-	---------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------
 	
 
 	-- Create the widget for ScrollView
@@ -318,65 +435,66 @@ function scene:create( event )
 			horizontalScrollDisabled = true,
 			isBounceEnabled = false,
 			--hideBackground = true
-			backgroundColor = { 0.047, 0.227, 0.53 }
+			backgroundColor = { 0, 0, 0,0 }
 		}
 	)
 
 	------------------------------------------------------------------------------
 	-- Create the content to populate the ScrollView
-
+	------------------------------------------------------------------------------
 	-- starting co-ordinates for displaying stuff in scroll area
 	rankX = -145
 	flagX = -110
-	nameX = -30
+	nameX = 0
 	y = -210
-
+	
 	-- create country list arrays, based on data read from db
 	CountryArray = makeArray(country)
 	displayArray = rawArray(country)
-	newString = getRatingLine(composer.getVariable("LineNumber") - 1) --********************************************************************************
-	print(newString)
-	nextArray = makeArray(newString)
-	for i = 2, #nextArray do
-		print(nextArray[i])
-	end
-	print("*************************************"..composer.getVariable("LineNumber") - 1)
-	someArray = sortArray(nextArray,CountryArray,displayArray)
-		for i = 2, #nextArray do
-		print(nextArray[i])
-		print(CountryArray[i])
-		
-	end
+	newString = getRatingLine(composer.getVariable("LineNumber") - 1) -- Get line from file.
+	LineArray = makeArray(newString)
 	
-	
+	-- Make an Index Array, dont delete.
+	for i = 1, #LineArray do
+		indexArray[i] = i
+	end
 
+	someArray = sortArray(LineArray,CountryArray,displayArray,indexArray)-- Sort Arrays
+	--[[
+	for i = 2, #LineArray do --Debug
+		print(LineArray[i])
+		print(CountryArray[i])
+	end--]]
+	
 	for i = 2, 114 do	-- we have 113 countries to populate in ranking chart everytime
 
 		-- Create text and image content for a row in the scroll area
 	
 		local rankstring = "rank"
 		rankstring = rankstring..i
-		_G['rank'..i] = display.newText( i - 1, 0, 0, native.systemFont, 15 )
-		_G['rank'..i]:setFillColor( 1, 0.8, 0 )
-		_G['rank'..i].x = display.contentCenterX + rankX
-		_G['rank'..i].y = display.contentCenterY + y
-	
+		_G[rankstring] = display.newText( i - 1, 0, 0, native.systemFont, 15 )
+		_G[rankstring]:setFillColor( 1, 0.8, 0 )
+		_G[rankstring].x = display.contentCenterX + rankX
+		_G[rankstring].y = display.contentCenterY + y
+		rankstring = nil
+		
 		local rankstring = "flag"
 		rankstring = rankstring..i
-		_G['flag'..i] = display.newImageRect( ("flags/"..CountryArray[i]..".png"), 50, 50)
-		--print("flags/"..CountryArray[i]..".png")
-		_G['flag'..i].x = display.contentCenterX + flagX
-		_G['flag'..i].y = display.contentCenterY + y		
-		_G['flag'..i].id = i
-		_G['flag'..i]:addEventListener("touch",handleRowButton)
+		_G[rankstring] = display.newImageRect( ("flags/"..CountryArray[i]..".png"), 50, 50)
+		_G[rankstring].x = display.contentCenterX + flagX
+		_G[rankstring].y = display.contentCenterY + y		
+		_G[rankstring].id = i
 		
+		_G[rankstring]:addEventListener("touch",handleRowButton)
+		rankstring = nil
 		
-		
-		_G['name'..i] = display.newText( displayArray[i], 0, 0, native.systemFont, 15 )
-		_G['name'..i]:setFillColor( 1, 1, 1 )
-		_G['name'..i].x = display.contentCenterX + nameX
-		_G['name'..i].y = display.contentCenterY + y	
-
+		local rankstring = "name"
+		rankstring = rankstring..i
+		_G[rankstring] = display.newText( displayArray[i], 0, 0,150,0, native.systemFont, 15 )
+		_G[rankstring]:setFillColor( 1, 1, 1 )
+		_G[rankstring].x = display.contentCenterX + nameX
+		_G[rankstring].y = display.contentCenterY + y	
+		rankstring = nil
 		-- increment the row height
 		y = y + 50	
 		
@@ -386,7 +504,6 @@ function scene:create( event )
 		scrollView:insert ( _G['name'..i] )
 
 	end
-	
 	
 	-- Button widget for the Go Back button
 	backButton = widget.newButton(
@@ -404,15 +521,11 @@ function scene:create( event )
 	-- insert the widget buttons into the display group "uiGroup", as there is no way to directly insert them while creating them, unlike other display objects.
 	uiGroup:insert ( searchTitle )
 	uiGroup:insert ( backButton )
-	--uiGroup:insert ( defaultField )
 
-	
 	-- insert my display objects (grouped as "uiGroup") into the "sceneGroup"
 	sceneGroup:insert( uiGroup )
-	
 	sceneGroup:insert( scrollView )
-	
-	
+		
 end
 
 
@@ -429,7 +542,8 @@ function scene:show( event )
 
     elseif ( phase == "did" ) then
         -- Code here runs when the scene is entirely on screen
-
+	defaultField = native.newTextField( 160, 25, 180, 30 )
+	defaultField:addEventListener( "userInput", textListener )
     end
 --]
 end
@@ -444,7 +558,7 @@ function scene:hide( event )
 
     if ( phase == "will" ) then
         -- Code here runs when the scene is on screen (but is about to go off screen)
-
+		defaultField:removeSelf()
     elseif ( phase == "did" ) then
         -- Code here runs immediately after the scene goes entirely off screen
 
