@@ -16,6 +16,11 @@ local composer = require( "composer" )
 
 local scene = composer.newScene()
 
+-- Functions for each button on screen
+local function gotoViewByRanking()
+	composer.gotoScene( "ViewByRanking", { time=800, effect="crossFade" } )
+end
+
 local function goBack()
 	composer.gotoScene( "mainmenuScene", { time=800, effect="crossFade" } )
 end
@@ -59,7 +64,7 @@ function scene:create( event )
 			labelColor = { default= {1, 1, 1, 1}, over={1, 1, 1, 0.5} },
 			fontSize = 24,
 			font = "Arial",
-			--onRelease = ... gotoRankingsList ... defaulted to this category,
+			onRelease = gotoViewByRanking,
 			emboss = true,
 			shape = "roundedRect",
 			x = display.contentCenterX,
