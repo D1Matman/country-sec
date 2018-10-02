@@ -13,10 +13,11 @@
 -----------------------------------------------------------------------------------------
 
 local composer = require( "composer" )
-
 local scene = composer.newScene()
 
+--------------------------------------------------------------------------------------
 -- Functions for each button on screen
+--------------------------------------------------------------------------------------
 local function gotoViewByRanking(event,self)
 	print("****************************"..event.target.id)
 	composer.setVariable( "LineNumber", event.target.id )
@@ -24,6 +25,9 @@ local function gotoViewByRanking(event,self)
 	composer.removeScene( "categoryMenuScene" )
 end
 
+--------------------------------------------------------------------------------------
+-- Go back to Main Menu Scene
+--------------------------------------------------------------------------------------
 local function goBack()
 	composer.gotoScene( "mainmenuScene", { time=800, effect="crossFade" } )
 end
@@ -33,19 +37,19 @@ end
 --------------------------------------------------------------------------------------
 
 local widget = require( "widget" )
-
 local bg2
 local overallButton, governmentButton, corruptionButton, rightsButton, securityButton, justiceButton 
 local backButton
 
 local uiGroup
 
-
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
 
+--------------------------------------------------------------------------------------
 -- create()
+--------------------------------------------------------------------------------------
 function scene:create( event )
 
     local sceneGroup = self.view
