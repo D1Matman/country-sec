@@ -20,6 +20,7 @@ CountryToDisplay = {}
 newArray = {}
 indexArray = {}
 scrollView = ""
+debugGroup = display.newGroup()
 -----------------------------------------------------------------------------------------
 -- FUNCTIONS
 -----------------------------------------------------------------------------------------
@@ -244,7 +245,9 @@ local function textListener( event )
 	
 			else -- Text box is empty
 				counter = 2
-				displayFlags()
+				--displayFlags()
+				searchTitle = display.newText( debugGroup,"PleaseEnter a search term",display.contentCenterX,60, 0, 0, native.systemFont, 14)
+				debugGroup:insert(searchTitle)
 		end	
 
 	end
@@ -283,12 +286,20 @@ function findChars(array,search)
 		if (success == #search)then		
 			Poscounter = Poscounter + 1 -- For button Spacing on Y axis.See var 'top' below
 			print("Found "..array[i].. " at index position "..i) --Debug	
-			foundArray[k] = i
-			k = k +1
-			flag = 1 -- Found search term Flag		
-		end		
+			if (array[i] ~= CountryArray[1]) then -- ~= "country"
+				foundArray[k] = i
+				k = k +1
+				flag = 1 -- Found search term Flag
+			end
+		end	
 	end
 
+	if(#foundArray < 1) then
+		searchTitle = display.newText( debugGroup,"Search term not found",display.contentCenterX,60, 0, 0, native.systemFont, 14)
+		debugGroup:insert(searchTitle)
+		return
+	end
+	
 	--[[ --Debug
 	for i = 1, #foundArray do
 		print(foundArray[i])
@@ -590,9 +601,11 @@ function scene:hide( event )
     if ( phase == "will" ) then
         -- Code here runs when the scene is on screen (but is about to go off screen)
 		defaultField:removeSelf()
+			display.remove( debugGroup )
+			dubugGroup = nil
     elseif ( phase == "did" ) then
         -- Code here runs immediately after the scene goes entirely off screen
-
+			
     end
 --]	
 
