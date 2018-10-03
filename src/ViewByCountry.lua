@@ -241,8 +241,8 @@ function findChars(array,search)
 	displayFSearch(foundArray)
 	
 	if(flag ~= 1) then --Search term Not Found.
-		myText = display.newText(debugGroup,"Search Term Not Found!\n    Please Try Again",display.contentCenterX,startpos + (20*Poscounter), 240, 300, native.systemFont, 22)
-		myText:setFillColor( 0.8, 0, 0 )
+		myText = display.newText(debugGroup,"No results found.", 200, 200, 240, 300, native.systemFont, 22)
+		myText:setFillColor( 1, 1, 1 )
 		debugGroup:insert(myText)
 		sceneGroup:insert(debugGroup)
 	end
@@ -429,10 +429,11 @@ backLayer = display.newGroup()
 
 local background = display.newImage(backLayer, "bg_map_dotted.png", 30, 140)
 
-defaultField = native.newTextField( 160, 25, 180, 30 )
+defaultField = native.newTextField( 160, 15, 180, 30 )
+defaultField.placeholder = ( "Search" )
 defaultField:addEventListener( "userInput", textListener )
-SearchTitle = display.newText(backLayer,"Search",display.contentCenterX,0, 0, 0, native.systemFont, 14)
-SearchTitle:setFillColor( 1, 1, 1 )					
+--SearchTitle = display.newText(backLayer,"Search",display.contentCenterX,0, 0, 0, native.systemFont, 14)
+--SearchTitle:setFillColor( 1, 1, 1 )					
 
 -- Button widget for the Go Back button
 backButton = widget.newButton(

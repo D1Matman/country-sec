@@ -427,8 +427,8 @@ function scene:create( event )
 	-- Display textfield
 	--defaultField = native.newTextField( 160, 25, 180, 30 )
 	--defaultField:addEventListener( "userInput", textListener )
-	searchTitle = display.newText( "Search",display.contentCenterX,0, 0, 0, native.systemFont, 14)
-	searchTitle:setFillColor( 1, 1, 1 )		
+	--searchTitle = display.newText( "Search",display.contentCenterX,0, 0, 0, native.systemFont, 14)
+	--searchTitle:setFillColor( 1, 1, 1 )		
 	----------------------------------------------------------------------------------------
 	
 	-- Create the widget for ScrollView
@@ -547,7 +547,7 @@ function scene:create( event )
 	)
 	
 	-- insert the widget buttons into the display group "uiGroup", as there is no way to directly insert them while creating them, unlike other display objects.
-	uiGroup:insert ( searchTitle )
+	--uiGroup:insert ( searchTitle )
 	uiGroup:insert ( borderTop )
 	uiGroup:insert ( borderBottom )
 	uiGroup:insert ( backButton )
@@ -572,8 +572,8 @@ function scene:show( event )
 
     elseif ( phase == "did" ) then
         -- Code here runs when the scene is entirely on screen
-	defaultField = native.newTextField( 160, 25, 180, 30 )
-	-- defaultField.placeholder = "Search"
+	defaultField = native.newTextField( 160, 15, 180, 30 )
+	defaultField.placeholder = "Search"
 	defaultField:addEventListener( "userInput", textListener )
     end
 --]
