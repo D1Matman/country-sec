@@ -84,22 +84,39 @@ local function onRowRender( event )
     local rowHeight = 100
     --local rowWidth = 3000
 	temp = row.id
-    local rowTitle = display.newText(row,row.id, 0, 0,270,0,native.systemFont, 15 )
-    --rowTitle:setFillColor( 0,0,8 )
-	
-	if (string.find(temp,"Factor")~=1)then
-		rowTitle:setFillColor( 0,0,0 ) --Is not a FACTOR (flat file) heading text colour blue.
-		else
-		rowTitle:setFillColor( 0,8,0 )	--Is a heading Colour X (green) 
+    local rowTitle
+
+	-- Set different fill colours to differentiate important category / headers
+	if (string.find(temp,"OVERALL") == 1)then
+		rowTitle = display.newEmbossedText(row,row.id, 0, 0,270,0,native.systemFontBold, 15 )
+		rowTitle:setFillColor( 0.95, 0.95, 0 ) -- major category
+	elseif (string.find(temp,"Government accou") == 1) then
+		rowTitle = display.newEmbossedText(row,row.id, 0, 0,270,0,native.systemFontBold, 15 )
+		rowTitle:setFillColor( 1, 0.8, 0 )	-- major category / header
+	elseif (string.find(temp,"Absence") == 1) then
+		rowTitle = display.newEmbossedText(row,row.id, 0, 0,270,0,native.systemFontBold, 15 )
+		rowTitle:setFillColor( 1, 0.8, 0 )	-- major category / header
+	elseif (string.find(temp,"Fundamental rights") == 1) then
+		rowTitle = display.newEmbossedText(row,row.id, 0, 0,270,0,native.systemFontBold, 15 )
+		rowTitle:setFillColor( 1, 0.8, 0 )	-- major category / header
+	elseif (string.find(temp,"Public order") == 1) then
+		rowTitle = display.newEmbossedText(row,row.id, 0, 0,270,0,native.systemFontBold, 15 )
+		rowTitle:setFillColor( 1, 0.8, 0 )	-- major category / header
+	elseif (string.find(temp,"Civil &") == 1) then
+		rowTitle = display.newEmbossedText(row,row.id, 0, 0,270,0,native.systemFontBold, 15 )
+		rowTitle:setFillColor( 1, 0.8, 0 )	-- major category / header		
+	else
+		rowTitle = display.newEmbossedText(row,row.id, 0, 0,270,0,native.systemFont, 15 )
+		rowTitle:setFillColor( 1,1,1 )	-- minor rating category only
 	end
- 
+
     -- Align the label left and vertically centered
     rowTitle.anchorX = 0
     rowTitle.x = 20      --Where inside the ROW
-    rowTitle.y = 20
+    rowTitle.y = 30
 	rowHeight = rowHeight * 0.5
 	isBounceEnabled = false
-
+	
 end
 
 -----------------------------------------------------------------------------------
@@ -110,10 +127,10 @@ end
 
 	tableView = widget.newTableView(
 			{
-			left = 0,
 			top = 60,
-			height = 420,        --Height and width of the actual Table View
-			width = display.ContentWidthX ,
+			left = 0,
+			height = 396,        --Height and width of the actual Table View
+			width = 310,
 			onRowRender = onRowRender,
 			onRowTouch = onRowTouch,
 			listener = scrollListener,
@@ -121,7 +138,7 @@ end
 			}
 		)
 					
-		for i = 1, 46 do          -- 57 the amount of lines in the flat file! TODO full proof this! ***Had to Change this FACTOR has been removed from CSV
+		for i = 2, 46 do          -- 46 the amount of lines in the flat file! TODO full proof this! ***Had to Change this FACTOR has been removed from CSV
 			response = getRow(i)
 			local dummyArray = {}
 			local titleArray = {}
@@ -131,15 +148,22 @@ end
 			dummyArray = nil -- Kill It.
 			
 			local isCategory = false
-			local rowHeight = 60 ----------------------------------------ROW HEIGHT get the magic right.
+			local rowHeight = 61 ----------------------------------------ROW HEIGHT get the magic right.
 			local rowColor = { default={ 0, 0, 0,0}, over={ 0, 0, 0,0} }
-			local lineColor = { 0, 0, 0,0}
+			local lineColor = { 1, 1, 1, 0.5}
 			
 			local SectionString = titleArray[i]
 			local DataString = CountryToDisplay[i]
-			SectionString = SectionString:gsub("%a", string.upper,1) --Make First letter a capital
+			
+			-- capitalisation of rating strings
+			if (string.find(SectionString,"overall") == 1) then
+				SectionString = SectionString:gsub("%a", string.upper) --Make overall score ALL CAPS, since its most important.
+			else
+				SectionString = SectionString:gsub("%a", string.upper,1) --Make First letter a capital only, for the rest.
+			end
+			
 			DataString = DataString:gsub("%a", string.upper,1)
-			local id = SectionString.." = "..DataString --Concat output to display
+			local id = SectionString.."    "..(DataString * 100).." / 100" --Concat output to display
 			
 			-- Insert a row into the tableView
 			tableView:insertRow(
@@ -151,7 +175,7 @@ end
 					id = id,
 					--params = {}  -- Include custom data in the row               **TODO but not needed.
 				}
-			)		
+			)
 		end
 	dataGroup:insert(tableView)		
 end
@@ -170,7 +194,21 @@ function scene:create( event )
 	local bg2 = display.newRect( bg2X, bg2Y, display.contentWidth, display.contentHeight + 100 )
 	bg2.fill = { type="image", filename="bg_blue.jpg" }
 	flagDataGroup:insert( bg2 )
+
+	-- thin blue border lines at top and bottom of scroll view window
+	borderTop = display.newLine( display.contentCenterX - 200, display.contentCenterY - 181, display.contentCenterX + 200, display.contentCenterY - 181 )
+	borderTop:setStrokeColor( 0.05, 0.23, 0.53 )
+	borderTop.strokeWidth = 1
+
+	borderBottom = display.newLine( display.contentCenterX - 200, display.contentCenterY + 217, display.contentCenterX + 200, display.contentCenterY + 217 )
+	borderBottom:setStrokeColor( 0.05, 0.23, 0.53 )
+	borderBottom.strokeWidth = 1	
 	
+	-- Add scroll border lines to display group
+	flagDataGroup:insert(borderTop)
+	flagDataGroup:insert(borderBottom)
+	
+	-- create the Go Back button
 	backButton2 = widget.newButton(
 		{
 			onRelease = goBack,
@@ -191,12 +229,12 @@ function scene:create( event )
 	print(cID) -- Print Country ID DEBUG
 	
 	local someString = "flags/"..countryName..".png"
-	local flagImage = display.newImageRect(flagDataGroup,someString, 100, 100)
+	local flagImage = display.newImageRect(flagDataGroup,someString, 50, 50)
 	flagDataGroup:insert( flagImage )
-	flagImage.x = display.contentCenterX
-	flagImage.y = display.contentCenterY - 238
+	flagImage.x = display.contentCenterX - 118
+	flagImage.y = display.contentCenterY - 224
 	
-	local text1 = display.newText(flagDataGroup,DisplayName,display.contentCenterX-100,display.contentCenterY - 245,110,0,native.systemFont,17)
+	local text1 = display.newEmbossedText(flagDataGroup,DisplayName,display.contentCenterX + 42,display.contentCenterY - 224, 250, 0, native.systemFontBold, 20)
 	
 	local path = system.pathForFile( "wjp.csv", system.ResourceDirectory )
 	dataGroup:insert( flagDataGroup )
