@@ -299,9 +299,10 @@ function findChars(array,search)
 	display.remove( scrollView )
 	scrollView = nil
 	scrollView = display.newGroup()
-	rankX = -145
-	flagX = -110
-	nameX = 0
+	
+	rankX = -142
+	flagX = -100
+	nameX = 10
 	y = -210
 	
 	scrollView = widget.newScrollView(
@@ -314,9 +315,9 @@ function findChars(array,search)
 			scrollHeight = 380,
 			listener = scrollListener,
 			horizontalScrollDisabled = true,
-			isBounceEnabled = false,
-			--hideBackground = true
-			backgroundColor = { 0, 0, 0,0 }
+			isBounceEnabled = true,
+			hideBackground = true
+			-- backgroundColor = { 0, 0, 0 }
 		}
 	)
 	
@@ -349,6 +350,15 @@ function findChars(array,search)
 		_G[rankstring].x = display.contentCenterX + nameX
 		_G[rankstring].y = display.contentCenterY + y	
 		rankstring = nil
+
+		-- thin line to separate each row in the scroll view area
+		local rankstring = "rowLine"
+		rankstring = rankstring..i	
+		_G[rankstring] = display.newLine( display.contentCenterX - 155, display.contentCenterY + (y + 25), display.contentCenterX + 130, display.contentCenterY + (y + 25) )
+		_G[rankstring]:setStrokeColor( 1, 1, 1, 0.5 )
+		_G[rankstring].strokeWidth = 1
+		rankstring = nil
+		
 		-- increment the row height
 		y = y + 50	
 		
@@ -356,7 +366,8 @@ function findChars(array,search)
 		scrollView:insert ( _G['rank'..i] )
 		scrollView:insert ( _G['flag'..i] )
 		scrollView:insert ( _G['name'..i] )
-
+		scrollView:insert ( _G['rowLine'..i] )
+		
 	end
     sceneGroup:insert(scrollView)
 end
@@ -413,7 +424,6 @@ function scene:create( event )
 	bg2.fill = { type="image", filename="bg_blue.jpg" }
 
 	----------------------------------------------------------------------------------------
-	-- PLACEHOLDER TEXTFIELD STUFF --
 	-- Display textfield
 	--defaultField = native.newTextField( 160, 25, 180, 30 )
 	--defaultField:addEventListener( "userInput", textListener )
@@ -421,7 +431,6 @@ function scene:create( event )
 	searchTitle:setFillColor( 1, 1, 1 )		
 	----------------------------------------------------------------------------------------
 	
-
 	-- Create the widget for ScrollView
 	scrollView = widget.newScrollView(
 		{
@@ -433,9 +442,9 @@ function scene:create( event )
 			scrollHeight = 380,
 			listener = scrollListener,
 			horizontalScrollDisabled = true,
-			isBounceEnabled = false,
-			--hideBackground = true
-			backgroundColor = { 0, 0, 0,0 }
+			isBounceEnabled = true,
+			hideBackground = true
+			-- backgroundColor = { 0, 0, 0 }
 		}
 	)
 
@@ -443,9 +452,9 @@ function scene:create( event )
 	-- Create the content to populate the ScrollView
 	------------------------------------------------------------------------------
 	-- starting co-ordinates for displaying stuff in scroll area
-	rankX = -145
-	flagX = -110
-	nameX = 0
+	rankX = -142
+	flagX = -100
+	nameX = 10
 	y = -210
 	
 	-- create country list arrays, based on data read from db
@@ -466,7 +475,7 @@ function scene:create( event )
 		print(CountryArray[i])
 	end--]]
 	
-	for i = 2, 114 do	-- we have 113 countries to populate in ranking chart everytime
+	for i = 2, 114 do	-- we have 113 countries to populate in ranking chart everytime, count starts at column 2 in db
 
 		-- Create text and image content for a row in the scroll area
 	
@@ -495,6 +504,15 @@ function scene:create( event )
 		_G[rankstring].x = display.contentCenterX + nameX
 		_G[rankstring].y = display.contentCenterY + y	
 		rankstring = nil
+		
+		-- thin line to separate each row in the scroll view area
+		local rankstring = "rowLine"
+		rankstring = rankstring..i	
+		_G[rankstring] = display.newLine( display.contentCenterX - 155, display.contentCenterY + (y + 25), display.contentCenterX + 130, display.contentCenterY + (y + 25) )
+		_G[rankstring]:setStrokeColor( 1, 1, 1, 0.5 )
+		_G[rankstring].strokeWidth = 1
+		rankstring = nil
+		
 		-- increment the row height
 		y = y + 50	
 		
@@ -502,8 +520,18 @@ function scene:create( event )
 		scrollView:insert ( _G['rank'..i] )
 		scrollView:insert ( _G['flag'..i] )
 		scrollView:insert ( _G['name'..i] )
+		scrollView:insert ( _G['rowLine'..i] )
 
 	end
+	
+	-- thin blue border lines at top and bottom of scroll view window
+	borderTop = display.newLine( display.contentCenterX - 200, display.contentCenterY - 166, display.contentCenterX + 200, display.contentCenterY - 166 )
+	borderTop:setStrokeColor( 0.05, 0.23, 0.53 )
+	borderTop.strokeWidth = 1
+	
+	borderBottom = display.newLine( display.contentCenterX - 200, display.contentCenterY + 215, display.contentCenterX + 200, display.contentCenterY + 215 )
+	borderBottom:setStrokeColor( 0.05, 0.23, 0.53 )
+	borderBottom.strokeWidth = 1
 	
 	-- Button widget for the Go Back button
 	backButton = widget.newButton(
@@ -520,6 +548,8 @@ function scene:create( event )
 	
 	-- insert the widget buttons into the display group "uiGroup", as there is no way to directly insert them while creating them, unlike other display objects.
 	uiGroup:insert ( searchTitle )
+	uiGroup:insert ( borderTop )
+	uiGroup:insert ( borderBottom )
 	uiGroup:insert ( backButton )
 
 	-- insert my display objects (grouped as "uiGroup") into the "sceneGroup"
@@ -543,6 +573,7 @@ function scene:show( event )
     elseif ( phase == "did" ) then
         -- Code here runs when the scene is entirely on screen
 	defaultField = native.newTextField( 160, 25, 180, 30 )
+	-- defaultField.placeholder = "Search"
 	defaultField:addEventListener( "userInput", textListener )
     end
 --]
