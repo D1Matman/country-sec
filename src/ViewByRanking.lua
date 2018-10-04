@@ -246,7 +246,7 @@ local function textListener( event )
 			else -- Text box is empty
 				counter = 2
 				--displayFlags()
-				searchTitle = display.newText( debugGroup,"PleaseEnter a search term",display.contentCenterX,60, 0, 0, native.systemFont, 14)
+				searchTitle = display.newEmbossedText( debugGroup,"PleaseEnter a search term",display.contentCenterX,60, 0, 0, native.systemFont, 14)
 				debugGroup:insert(searchTitle)
 		end	
 
@@ -295,7 +295,7 @@ function findChars(array,search)
 	end
 
 	if(#foundArray < 1) then
-		searchTitle = display.newText( debugGroup,"Search term not found",display.contentCenterX,60, 0, 0, native.systemFont, 14)
+		searchTitle = display.newEmbossedText( debugGroup,"No results found.",display.contentCenterX,60, 0, 0, native.systemFont, 14)
 		debugGroup:insert(searchTitle)
 		return
 	end
@@ -313,7 +313,7 @@ function findChars(array,search)
 	
 	rankX = -142
 	flagX = -100
-	nameX = 10
+	nameX = 26
 	y = -210
 	
 	scrollView = widget.newScrollView(
@@ -338,7 +338,7 @@ function findChars(array,search)
 	
 		local rankstring = "rank"
 		rankstring = rankstring..i
-		_G[rankstring] = display.newText( foundArray[i] - 1, 0, 0, native.systemFont, 15 )
+		_G[rankstring] = display.newEmbossedText( foundArray[i] - 1, 0, 0, native.systemFont, 15 )
 		_G[rankstring]:setFillColor( 1, 0.8, 0 )
 		_G[rankstring].x = display.contentCenterX + rankX
 		_G[rankstring].y = display.contentCenterY + y
@@ -356,7 +356,7 @@ function findChars(array,search)
 		
 		local rankstring = "name"
 		rankstring = rankstring..i
-		_G[rankstring] = display.newText( displayArray[foundArray[i]], 0, 0,150,0, native.systemFont, 15 )
+		_G[rankstring] = display.newEmbossedText( displayArray[foundArray[i]], 0, 0,180,0, native.systemFont, 15 )
 		_G[rankstring]:setFillColor( 1, 1, 1 )
 		_G[rankstring].x = display.contentCenterX + nameX
 		_G[rankstring].y = display.contentCenterY + y	
@@ -465,7 +465,7 @@ function scene:create( event )
 	-- starting co-ordinates for displaying stuff in scroll area
 	rankX = -142
 	flagX = -100
-	nameX = 10
+	nameX = 26
 	y = -210
 	
 	-- create country list arrays, based on data read from db
@@ -492,7 +492,7 @@ function scene:create( event )
 	
 		local rankstring = "rank"
 		rankstring = rankstring..i
-		_G[rankstring] = display.newText( i - 1, 0, 0, native.systemFont, 15 )
+		_G[rankstring] = display.newEmbossedText( i - 1, 0, 0, native.systemFont, 15 )
 		_G[rankstring]:setFillColor( 1, 0.8, 0 )
 		_G[rankstring].x = display.contentCenterX + rankX
 		_G[rankstring].y = display.contentCenterY + y
@@ -510,7 +510,7 @@ function scene:create( event )
 		
 		local rankstring = "name"
 		rankstring = rankstring..i
-		_G[rankstring] = display.newText( displayArray[i], 0, 0,150,0, native.systemFont, 15 )
+		_G[rankstring] = display.newEmbossedText( displayArray[i], 0, 0, 180,0, native.systemFont, 15 )
 		_G[rankstring]:setFillColor( 1, 1, 1 )
 		_G[rankstring].x = display.contentCenterX + nameX
 		_G[rankstring].y = display.contentCenterY + y	

@@ -241,7 +241,7 @@ function findChars(array,search)
 	displayFSearch(foundArray)
 	
 	if(flag ~= 1) then --Search term Not Found.
-		myText = display.newText(debugGroup,"No results found.", 200, 200, 240, 300, native.systemFont, 22)
+		myText = display.newEmbossedText(debugGroup,"No results found.", 200, 200, 240, 300, native.systemFont, 22)
 		myText:setFillColor( 1, 1, 1 )
 		debugGroup:insert(myText)
 		sceneGroup:insert(debugGroup)
@@ -285,7 +285,7 @@ flagGroup = display.newGroup()
 		--print(CountryArray[arr[i]])
 		someString = "flags/"..CountryArray[arr[i]]..".png"
 		image3 = display.newImageRect(flagGroup,someString, 50, 50)
-		text3 = display.newText(flagGroup,displayArray[arr[i]],posiArray[i] +20,yaxis + 35,90,0,native.systemFont,13)
+		text3 = display.newEmbossedText(flagGroup,displayArray[arr[i]],posiArray[i] +20,yaxis + 35,90,0,native.systemFont,13)
 		image3.x = (posiArray[i])
 		image3.y = yaxis
 		--print(someString)
@@ -340,7 +340,7 @@ i = 1
 		
 		someString = "flags/"..CountryArray[counter]..".png" 
 		image2 = display.newImageRect(flagGroup,someString, 50, 50)
-		text2 = display.newText(flagGroup,displayArray[counter],posiArray[i] +20,yaxis + 35,90,0,native.systemFont,13)
+		text2 = display.newEmbossedText(flagGroup,displayArray[counter],posiArray[i] +20,yaxis + 35,90,0,native.systemFont,13)
 		image2.x = (posiArray[i])
 		image2.y = yaxis
 		--print(someString)
