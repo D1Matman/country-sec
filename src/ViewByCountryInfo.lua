@@ -222,6 +222,29 @@ function scene:create( event )
 	)
 	flagDataGroup:insert(backButton2)
 	
+	-- create the News button
+	newsButton = widget.newButton(
+		{
+			label = "View Latest News",
+			labelColor = { default= {1, 1, 1, 1}, over={1, 1, 1, 0.5} },
+			fontSize = 20,
+			font = "Arial",
+			--onRelease = run the web news link code and open URL,
+			emboss = true,
+			shape = "roundedRect",
+			x = display.contentCenterX + 24,
+			y = 494,
+			width = 250,
+			height = 44,
+			cornerRadius = 6,
+			fillColor = { default= {0.11, 0.43, 0.95, 1}, over={0.11, 0.43, 0.95, 0.5} },
+			strokeColor = { default={0.05, 0.23, 0.53, 1}, over={0.05, 0.23, 0.53, 0.5} },
+			strokeWidth = 5
+		}
+	)
+	flagDataGroup:insert(newsButton)
+	
+	
 	local countryName = composer.getVariable( "countryString" )
 	local DisplayName = composer.getVariable( "countryDisplayString" ) 
 	cID = composer.getVariable( "countryID" )
