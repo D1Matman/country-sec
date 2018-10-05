@@ -21,3 +21,19 @@ application =
 		--]]
 	},
 }
+
+settings =
+{
+    window =
+    {
+		defaultViewWidth = 414,
+		defaultViewHeight = 736,
+		resizable = true,
+		minViewWidth = 414,
+		minViewHeight = 736,
+		--enableMaximizeButton = true,
+		titleText = {
+            default = "Global Security & Laws Travel Companion"
+        },
+    },  
+}
