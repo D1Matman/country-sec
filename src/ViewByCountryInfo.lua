@@ -17,6 +17,27 @@ local prevScene = composer.getSceneName("previous") -- Get the last scene
 --Go back to previous screen
 --
 -----------------------------------------------------------------------------------
+local function gotoWebNews(newsCountry)
+	
+	-- create variable for countryname & init variable for URL string
+	local name = newsCountry
+	local newsURL
+	
+	-- modify to replace any inner spaces in string with "+" signs to be used in URL string for web search
+	name = name:gsub("%s+", "+")	
+	
+	-- url string for web, including country name
+	-- example -- https://www.google.com/search?q=south+africa+visitor+security+risk+safety+travel+caution+concern	
+	newsUrl = "https://www.google.com/search?q="..name.."+visitor+security+risk+safety+travel+caution+concern"
+	
+	-- open the web page
+	system.openURL( newsUrl )
+end
+
+-----------------------------------------------------------------------------------
+--Go back to previous screen
+--
+-----------------------------------------------------------------------------------
 local function goBack()
 	-- Completely remove the scene, including its scene object
     composer.removeScene( "ViewByCountryInfo" )
@@ -208,6 +229,21 @@ function scene:create( event )
 	flagDataGroup:insert(borderTop)
 	flagDataGroup:insert(borderBottom)
 	
+	
+	local countryName = composer.getVariable( "countryString" )
+	local DisplayName = composer.getVariable( "countryDisplayString" ) 
+	cID = composer.getVariable( "countryID" )
+	
+	print(cID) -- Print Country ID DEBUG
+	
+	local someString = "flags/"..countryName..".png"
+	local flagImage = display.newImageRect(flagDataGroup,someString, 50, 50)
+	flagDataGroup:insert( flagImage )
+	flagImage.x = display.contentCenterX - 118
+	flagImage.y = display.contentCenterY - 224
+	
+	local text1 = display.newEmbossedText(flagDataGroup,DisplayName,display.contentCenterX + 42,display.contentCenterY - 224, 250, 0, native.systemFontBold, 20)
+	
 	-- create the Go Back button
 	backButton2 = widget.newButton(
 		{
@@ -229,7 +265,7 @@ function scene:create( event )
 			labelColor = { default= {1, 1, 1, 1}, over={1, 1, 1, 0.5} },
 			fontSize = 20,
 			font = "Arial",
-			--onRelease = run the web news link code and open URL,
+			onRelease = gotoWebNews(countryName),
 			emboss = true,
 			shape = "roundedRect",
 			x = display.contentCenterX + 24,
@@ -244,23 +280,9 @@ function scene:create( event )
 	)
 	flagDataGroup:insert(newsButton)
 	
-	
-	local countryName = composer.getVariable( "countryString" )
-	local DisplayName = composer.getVariable( "countryDisplayString" ) 
-	cID = composer.getVariable( "countryID" )
-	
-	print(cID) -- Print Country ID DEBUG
-	
-	local someString = "flags/"..countryName..".png"
-	local flagImage = display.newImageRect(flagDataGroup,someString, 50, 50)
-	flagDataGroup:insert( flagImage )
-	flagImage.x = display.contentCenterX - 118
-	flagImage.y = display.contentCenterY - 224
-	
-	local text1 = display.newEmbossedText(flagDataGroup,DisplayName,display.contentCenterX + 42,display.contentCenterY - 224, 250, 0, native.systemFontBold, 20)
-	
-	local path = system.pathForFile( "wjp.csv", system.ResourceDirectory )
 	dataGroup:insert( flagDataGroup )
+	
+	local path = system.pathForFile( "wjp.csv", system.ResourceDirectory )	
 	
 	--Open File.
 	local file = io.open(path, "r")
