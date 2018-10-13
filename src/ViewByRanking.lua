@@ -20,7 +20,9 @@ CountryToDisplay = {}
 newArray = {}
 indexArray = {}
 scrollView = ""
-debugGroup = display.newGroup()
+defaultField = display.newGroup()
+--debugGroup = display.newGroup()
+
 -----------------------------------------------------------------------------------------
 -- FUNCTIONS
 -----------------------------------------------------------------------------------------
@@ -29,7 +31,11 @@ debugGroup = display.newGroup()
 -- Goto Country Data Scene
 --------------------------------------------------------------------------------
 local function gotoViewByCountryData()
-	composer.gotoScene( "ViewByCountryInfo", { time=800, effect="crossFade" } )
+defaultField:removeSelf()
+	
+	composer.gotoScene( "ViewByCountryInfo", { time=800, effect="crossFade" } )	
+		
+	
 end
 
 --------------------------------------------------------------------------------
@@ -37,7 +43,10 @@ end
 --------------------------------------------------------------------------------
 local function goBack()
 	composer.gotoScene( "categoryMenuScene", { time=800, effect="crossFade" } )
+	defaultField:removeSelf()
 	composer.removeScene("ViewByRanking")
+		
+		
 end
 
 
@@ -88,7 +97,7 @@ function sortArray(arr,arr2,arr3,arr4)
 		end
 				
 	end
-	return arr
+	--return arr
 end	
 
 ---------------------------------------------------------------------------------
@@ -246,7 +255,7 @@ local function textListener( event )
 			else -- Text box is empty
 				counter = 2
 				--displayFlags()
-				searchTitle = display.newEmbossedText( debugGroup,"PleaseEnter a search term",display.contentCenterX,60, 0, 0, native.systemFont, 14)
+				searchTitle = display.newEmbossedText( debugGroup,"Please Enter a search term",display.contentCenterX,60, 0, 0, native.systemFont, 14)
 				debugGroup:insert(searchTitle)
 		end	
 
@@ -441,7 +450,7 @@ function scene:create( event )
 	--searchTitle = display.newText( "Search",display.contentCenterX,0, 0, 0, native.systemFont, 14)
 	--searchTitle:setFillColor( 1, 1, 1 )		
 	----------------------------------------------------------------------------------------
-	
+
 	-- Create the widget for ScrollView
 	scrollView = widget.newScrollView(
 		{
@@ -479,7 +488,7 @@ function scene:create( event )
 		indexArray[i] = i
 	end
 
-	someArray = sortArray(LineArray,CountryArray,displayArray,indexArray)-- Sort Arrays
+	sortArray(LineArray,CountryArray,displayArray,indexArray)-- Sort Arrays
 	--[[
 	for i = 2, #LineArray do --Debug
 		print(LineArray[i])
@@ -547,7 +556,7 @@ function scene:create( event )
 	-- Button widget for the Go Back button
 	backButton = widget.newButton(
 		{
-			onRelease = goBack,
+			--onRelease = goBack,
 			x = 29,
 			y = 496,
 			width = 40,
@@ -556,6 +565,7 @@ function scene:create( event )
 			overFile = "backButtonPressed.png"
 		}
 	)
+	
 	
 	-- insert the widget buttons into the display group "uiGroup", as there is no way to directly insert them while creating them, unlike other display objects.
 	--uiGroup:insert ( searchTitle )
@@ -580,12 +590,16 @@ function scene:show( event )
 
     if ( phase == "will" ) then
         -- Code here runs when the scene is still off screen (but is about to come on screen)
+		
 
     elseif ( phase == "did" ) then
         -- Code here runs when the scene is entirely on screen
-	defaultField = native.newTextField( 160, 15, 180, 30 )
-	defaultField.placeholder = "Search"
-	defaultField:addEventListener( "userInput", textListener )
+		defaultField = native.newTextField( 160, 15, 180, 30 )
+		defaultField.placeholder = "Search"
+		defaultField:addEventListener( "userInput", textListener )
+		backButton:addEventListener("tap", goBack)
+		
+
     end
 --]
 end
@@ -599,10 +613,10 @@ function scene:hide( event )
     local phase = event.phase
 
     if ( phase == "will" ) then
-        -- Code here runs when the scene is on screen (but is about to go off screen)
-		defaultField:removeSelf()
+        -- Code here runs when the scene is on screen (but is about to go off screen)	
 			display.remove( debugGroup )
 			dubugGroup = nil
+			backButton:removeEventListener("tap", goBack)
     elseif ( phase == "did" ) then
         -- Code here runs immediately after the scene goes entirely off screen
 			
