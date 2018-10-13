@@ -12,21 +12,21 @@ local prevScene = composer.getSceneName("previous") -- Get the last scene
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
 
-
 -----------------------------------------------------------------------------------
---Go back to previous screen
---
+--Function to launch webpage in system default browser
+--passing in the country's name as parameter to insert into the URL
 -----------------------------------------------------------------------------------
-local function gotoWebNews(newsCountry)
+local function gotoWebNews()
 	
 	-- create variable for countryname & init variable for URL string
-	local name = newsCountry
-	local newsURL
+	local name = countryName
+	local newsUrl
 	
-	-- modify to replace any inner spaces in string with "+" signs to be used in URL string for web search
+	-- modify country name to replace any inner spaces in string with "+" signs to be used in URL string for web search
+	-- ref: https://stackoverflow.com/questions/10460126/how-to-remove-spaces-from-a-string-in-lua
 	name = name:gsub("%s+", "+")	
 	
-	-- url string for web, including country name
+	-- url string for webpage, inserting country name
 	-- example -- https://www.google.com/search?q=south+africa+visitor+security+risk+safety+travel+caution+concern	
 	newsUrl = "https://www.google.com/search?q="..name.."+visitor+security+risk+safety+travel+caution+concern"
 	
@@ -230,7 +230,7 @@ function scene:create( event )
 	flagDataGroup:insert(borderBottom)
 	
 	
-	local countryName = composer.getVariable( "countryString" )
+	countryName = composer.getVariable( "countryString" )
 	local DisplayName = composer.getVariable( "countryDisplayString" ) 
 	cID = composer.getVariable( "countryID" )
 	
@@ -265,7 +265,7 @@ function scene:create( event )
 			labelColor = { default= {1, 1, 1, 1}, over={1, 1, 1, 0.5} },
 			fontSize = 20,
 			font = "Arial",
-			onRelease = gotoWebNews(countryName),
+			onRelease = gotoWebNews,
 			emboss = true,
 			shape = "roundedRect",
 			x = display.contentCenterX + 24,
