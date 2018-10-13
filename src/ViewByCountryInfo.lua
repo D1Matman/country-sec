@@ -14,7 +14,7 @@ local prevScene = composer.getSceneName("previous") -- Get the last scene
 
 -----------------------------------------------------------------------------------
 --Function to launch webpage in system default browser
---passing in the country's name as parameter to insert into the URL
+--passing in the country's name to insert into the URL (note: but corona button functions dont play nice with argument params for some reason!)
 -----------------------------------------------------------------------------------
 local function gotoWebNews()
 	
