@@ -137,6 +137,7 @@ local function textListener( event )
 	
 			else -- Text box is empty
 				counter = 2
+				Runtime:addEventListener("touch", touchListener)
 				displayFlags()
 		end	
 
