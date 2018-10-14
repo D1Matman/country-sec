@@ -19,6 +19,7 @@ local scene = composer.newScene()
 -- Functions for each button on screen
 --------------------------------------------------------------------------------------
 local function gotoViewByRanking(event,self)
+	audio.play( soundTable["soundSelect"] )
 	print("****************************"..event.target.id)
 	composer.setVariable( "LineNumber", event.target.id )
 	composer.gotoScene( "ViewByRanking", { time=800, effect="crossFade" } )
@@ -29,7 +30,9 @@ end
 -- Go back to Main Menu Scene
 --------------------------------------------------------------------------------------
 local function goBack()
+	audio.play( soundTable["soundBack"] )
 	composer.gotoScene( "mainmenuScene", { time=800, effect="crossFade" } )
+	composer.removeScene("categoryMenuScene")
 end
 
 --------------------------------------------------------------------------------------
