@@ -20,11 +20,13 @@ soundTable = {
 
 -- Functions for each button on screen
 local function gotoCountryList()
+	system.vibrate()
 	audio.play( soundTable["soundSelect"] )
 	composer.gotoScene( "ViewByCountry", { time=800, effect="crossFade" } )
 end
 
 local function gotoCategoryMenu()
+	system.vibrate()
 	audio.play( soundTable["soundSelect"] )
 	composer.gotoScene( "categoryMenuScene", { time=800, effect="crossFade" } )
 end
@@ -51,7 +53,9 @@ local uiGroup
 function scene:create( event )
 
     local sceneGroup = self.view
-    
+	
+	--make the device vibrate
+    system.vibrate()
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 
 	-- Set up display group for UI objects

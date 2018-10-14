@@ -18,9 +18,8 @@ local prevScene = composer.getSceneName("previous") -- Get the last scene
 --passing in the country's name to insert into the URL (note: but corona button functions dont play nice with argument params for some reason!)
 -----------------------------------------------------------------------------------
 local function gotoWebNews()
-	
+	system.vibrate()
 	audio.play( soundTable["soundSelect"] )
-	
 	-- create variable for countryname & init variable for URL string
 	local name = countryName
 	local newsUrl
@@ -42,6 +41,7 @@ end
 --
 -----------------------------------------------------------------------------------
 local function goBack()
+	system.vibrate()
 	audio.play( soundTable["soundBack"] )
 	-- Completely remove the scene, including its scene object
     composer.removeScene( "ViewByCountryInfo" )
@@ -251,7 +251,7 @@ function scene:create( event )
 	-- create the Go Back button
 	backButton2 = widget.newButton(
 		{
-			onRelease = goBack,
+			--onRelease = goBack,
 			x = 29,
 			y = 500,
 			width = 40,
@@ -343,7 +343,7 @@ function scene:show( event )
 		
     elseif ( phase == "did" ) then
         -- Code here runs when the scene is entirely on screen
-
+		backButton2:addEventListener("tap", goBack)
     end
 end
  
@@ -356,7 +356,7 @@ function scene:hide( event )
  
     if ( phase == "will" ) then
         -- Code here runs when the scene is on screen (but is about to go off screen)
- 
+		backButton2:removeEventListener("tap", goBack)
     elseif ( phase == "did" ) then
         -- Code here runs immediately after the scene goes entirely off screen
  

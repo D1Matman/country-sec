@@ -19,6 +19,7 @@ local scene = composer.newScene()
 -- Functions for each button on screen
 --------------------------------------------------------------------------------------
 local function gotoViewByRanking(event,self)
+	system.vibrate()
 	audio.play( soundTable["soundSelect"] )
 	print("****************************"..event.target.id)
 	composer.setVariable( "LineNumber", event.target.id )
@@ -30,9 +31,10 @@ end
 -- Go back to Main Menu Scene
 --------------------------------------------------------------------------------------
 local function goBack()
+	system.vibrate()
 	audio.play( soundTable["soundBack"] )
 	composer.gotoScene( "mainmenuScene", { time=800, effect="crossFade" } )
-	composer.removeScene("categoryMenuScene")
+	composer.removeScene("categoryMenuScene") 			--I dont have this just a migration check
 end
 
 --------------------------------------------------------------------------------------
