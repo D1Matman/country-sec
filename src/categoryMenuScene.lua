@@ -19,6 +19,7 @@ local scene = composer.newScene()
 -- Functions for each button on screen
 --------------------------------------------------------------------------------------
 local function gotoViewByRanking(event,self)
+	system.vibrate()
 	audio.play( soundTable["soundSelect"] )
 	print("****************************"..event.target.id)
 	composer.setVariable( "LineNumber", event.target.id )
@@ -30,9 +31,10 @@ end
 -- Go back to Main Menu Scene
 --------------------------------------------------------------------------------------
 local function goBack()
+	system.vibrate()
 	audio.play( soundTable["soundBack"] )
 	composer.gotoScene( "mainmenuScene", { time=800, effect="crossFade" } )
-	composer.removeScene("categoryMenuScene")
+	composer.removeScene("categoryMenuScene") 			--I dont have this just a migration check
 end
 
 --------------------------------------------------------------------------------------
@@ -61,7 +63,7 @@ function scene:create( event )
 
 	-- Set up display groups
 	uiGroup = display.newGroup()    -- Display group for UI objects
-	
+	ButtonGroup = display.newGroup()
 	-- Display blue background image
 	bg2X,bg2Y = display.contentCenterX, display.contentCenterY
 	bg2 = display.newRect( uiGroup, bg2X, bg2Y, display.contentWidth, display.contentHeight + 100 )
@@ -201,7 +203,7 @@ function scene:create( event )
 	-- Button widget for the Go Back button
 	backButton = widget.newButton(
 		{
-			onRelease = goBack,
+			--onRelease = goBack,
 			x = 29,
 			y = 496,
 			width = 40,
@@ -210,7 +212,7 @@ function scene:create( event )
 			overFile = "backButtonPressed.png"
 		}
 	)
-	
+	ButtonGroup:insert(backButton) 
 	-- insert the widget buttons into the display group "uiGroup", as there is no way to directly insert them while creating them, unlike other display objects.
 	uiGroup:insert ( overallButton )
 	uiGroup:insert ( governmentButton )
@@ -222,7 +224,7 @@ function scene:create( event )
 	
 	-- insert my display objects (grouped as "uiGroup") into the "sceneGroup"
 	sceneGroup:insert( uiGroup )
-	
+	sceneGroup:insert( ButtonGroup )
 end
 
 
@@ -239,6 +241,7 @@ function scene:show( event )
 
     elseif ( phase == "did" ) then
         -- Code here runs when the scene is entirely on screen
+		backButton:addEventListener("tap", goBack)
 
     end
 --]
@@ -254,7 +257,7 @@ function scene:hide( event )
 
     if ( phase == "will" ) then
         -- Code here runs when the scene is on screen (but is about to go off screen)
-
+		backButton:removeEventListener("tap", goBack)
     elseif ( phase == "did" ) then
         -- Code here runs immediately after the scene goes entirely off screen
 

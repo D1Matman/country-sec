@@ -1,9 +1,11 @@
 local composer = require( "composer" )
 local scene = composer.newScene()local widget = require( "widget" )
 
-defaultField = ""
+defaultField = display.newGroup()
 counter = 0
 lastValue = 0
+backButton = ""
+sceneGroup = display.newGroup()
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
@@ -12,7 +14,7 @@ lastValue = 0
 local function gotoViewByCountryData()
     audio.play( soundTable["soundSelect"] )
 	defaultField:removeSelf()
-	composer.removeScene( "ViewByCountry" )
+	--composer.removeScene( "ViewByCountry" )
 	composer.gotoScene( "ViewByCountryInfo", { time=800, effect="crossFade" } )
 end
 
@@ -20,30 +22,25 @@ end
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
  
--- create()
-function scene:create( event )
-	
-	local sceneGroup = self.view
-	local bg2X,bg2Y = display.contentCenterX, display.contentCenterY
-	local bg2 = display.newRect( bg2X, bg2Y, display.contentWidth, display.contentHeight + 100 )
-	bg2.fill = { type="image", filename="bg_blue.jpg" }
-	sceneGroup:insert( bg2 )
-	-- Vars             ---------------------------------------------Double check these Vars
-	CountryArray = {}
-	CountryToDisplay = {}
-	displayArray = {}
-	flag = 0
-	FirstTimeFlag = 0
-	counter = 2
-	--Groups
-	ButtonGroup = display.newGroup()
-	debugGroup = display.newGroup()
-	
+ ----------------------
+-- GoBack
+--
+local function goBack()
+	system.vibrate()
+	audio.play( soundTable["soundBack"] )
+	defaultField:removeSelf()
+	-- Completely remove the scene, including its scene object
+	Runtime:removeEventListener( "touch", touchListener )
+    composer.removeScene( "ViewByCountry" )
+	composer.gotoScene( "mainmenuScene", { time=800, effect="crossFade" } )
+end
+
 ---------------------------------------------------------------------FUNCTIONS--------------------------------------------
 -------------------------
 -- Handle Next Button
 --
 function handleFlagButton (event,self)
+	system.vibrate()
 	Runtime:removeEventListener( "touch", touchListener )
 	print(event.target.id)
 	print(CountryArray[event.target.id])
@@ -53,17 +50,7 @@ function handleFlagButton (event,self)
 	gotoViewByCountryData()		
 end
 
-----------------------
--- GoBack
---
-local function goBack()
-	audio.play( soundTable["soundBack"] )
-	defaultField:removeSelf()
-	-- Completely remove the scene, including its scene object
-	Runtime:removeEventListener( "touch", touchListener )
-    composer.removeScene( "ViewByCountry" )
-	composer.gotoScene( "mainmenuScene", { time=800, effect="crossFade" } )
-end
+
 
 ------------------------
 --Swipe
@@ -150,6 +137,7 @@ local function textListener( event )
 	
 			else -- Text box is empty
 				counter = 2
+				Runtime:addEventListener("touch", touchListener)
 				displayFlags()
 		end	
 
@@ -264,7 +252,7 @@ local posiArray = {	display.contentCenterX - 100, display.contentCenterX , displ
 					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
 					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
 					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100} 	
-
+Runtime:removeEventListener( "touch", touchListener )
 CountryArray = makeArray(country)
 displayArray = rawArray(country)
 display.remove( flagGroup )
@@ -430,21 +418,40 @@ end
 ----------------------------------------------------------------Fuctions End--------------------------------------------	
 ------------------------------------------------------------------------------------------------------------------------
 
+
+-- create()
+function scene:create( event )
+	
+	sceneGroup = self.view
+	local bg2X,bg2Y = display.contentCenterX, display.contentCenterY
+	local bg2 = display.newRect( bg2X, bg2Y, display.contentWidth, display.contentHeight + 100 )
+	bg2.fill = { type="image", filename="bg_blue.jpg" }
+	sceneGroup:insert( bg2 )
+	-- Vars             ---------------------------------------------Double check these Vars
+	CountryArray = {}
+	CountryToDisplay = {}
+	displayArray = {}
+	flag = 0
+	FirstTimeFlag = 0
+	counter = 2
+	--Groups
+	ButtonGroup = display.newGroup()
+	debugGroup = display.newGroup()
+	
+
 flagGroup = display.newGroup()
 backLayer = display.newGroup()
 
 local background = display.newImage(backLayer, "bg_map_dotted.png", 30, 140)
 
-defaultField = native.newTextField( 160, 15, 180, 30 )
-defaultField.placeholder = ( "Search" )
-defaultField:addEventListener( "userInput", textListener )
+
 --SearchTitle = display.newText(backLayer,"Search",display.contentCenterX,0, 0, 0, native.systemFont, 14)
 --SearchTitle:setFillColor( 1, 1, 1 )					
 
 -- Button widget for the Go Back button
 backButton = widget.newButton(
 	{
-		onRelease = goBack,
+		--onRelease = goBack,
 		x = 29,
 		y = 500,
 		width = 40,
@@ -488,7 +495,10 @@ function scene:show( event )
 
     elseif ( phase == "did" ) then
         -- Code here runs when the scene is entirely on screen
- 
+		defaultField = native.newTextField( 160, 15, 180, 30 )
+		defaultField.placeholder = ( "Search" )
+		defaultField:addEventListener( "userInput", textListener )
+		backButton:addEventListener("tap", goBack) 
     end
 end
  
@@ -501,10 +511,13 @@ function scene:hide( event )
  
     if ( phase == "will" ) then
         -- Code here runs when the scene is on screen (but is about to go off screen)
-		
+				display.remove( debugGroup )
+			dubugGroup = nil
+		backButton:removeEventListener("tap", goBack)
 	
     elseif ( phase == "did" ) then
         -- Code here runs immediately after the scene goes entirely off screen
+		
 		
     end
 end

@@ -21,7 +21,14 @@ newArray = {}
 indexArray = {}
 scrollView = ""
 defaultField = display.newGroup()
---debugGroup = display.newGroup()
+sceneGroup = display.newGroup()
+local bg2
+local backButton
+local searchTitle
+
+local uiGroup
+local backLayer
+--debugGroup = sceneGroup = display.newGroup()display.newGroup()
 
 -----------------------------------------------------------------------------------------
 -- FUNCTIONS
@@ -31,6 +38,7 @@ defaultField = display.newGroup()
 -- Goto Country Data Scene
 --------------------------------------------------------------------------------
 local function gotoViewByCountryData()
+	system.vibrate()
 	audio.play( soundTable["soundSelect"] )
 	defaultField:removeSelf()
 	composer.gotoScene( "ViewByCountryInfo", { time=800, effect="crossFade" } )	
@@ -40,6 +48,7 @@ end
 -- Function for Go Back button
 --------------------------------------------------------------------------------
 local function goBack()
+	system.vibrate()
 	audio.play( soundTable["soundBack"] )
 	composer.gotoScene( "categoryMenuScene", { time=800, effect="crossFade" } )
 	defaultField:removeSelf()
