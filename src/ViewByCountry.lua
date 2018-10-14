@@ -252,7 +252,7 @@ local posiArray = {	display.contentCenterX - 100, display.contentCenterX , displ
 					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
 					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
 					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100} 	
-
+Runtime:removeEventListener( "touch", touchListener )
 CountryArray = makeArray(country)
 displayArray = rawArray(country)
 display.remove( flagGroup )
