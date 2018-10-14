@@ -310,6 +310,37 @@ function scene:show( event )
     if ( phase == "will" ) then
         -- Code here runs when the scene is still off screen (but is about to come on screen)
 
+		-- Here we will default scroll user to row of ranking category they were just looking at
+		-- BUT only if previous scene was the Rankings screen 
+		if ( prevScene == "ViewByRanking" ) then
+		
+			local catRow = composer.getVariable("LineNumber")
+			print("Auto scroll down to relevant y height for rank category on database line #"..(composer.getVariable("LineNumber")))
+			
+			local catY
+			
+			if (catrow ~= 2) then
+				if (catRow == 3) then
+					catY = -50
+				elseif (catRow == 14) then
+					catY = -720	
+				elseif (catRow == 19) then
+					catY = -1033
+				elseif (catRow == 28) then
+					catY = -1580
+				elseif (catRow == 32) then
+					catY = -1826
+				end
+
+				tableView:scrollToY( 
+					{
+						y = catY,
+						time = 0
+					} 
+				)
+			end
+		end
+		
     elseif ( phase == "did" ) then
         -- Code here runs when the scene is entirely on screen
 
