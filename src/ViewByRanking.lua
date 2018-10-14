@@ -31,22 +31,19 @@ defaultField = display.newGroup()
 -- Goto Country Data Scene
 --------------------------------------------------------------------------------
 local function gotoViewByCountryData()
-defaultField:removeSelf()
-	
+	audio.play( soundTable["soundSelect"] )
+	defaultField:removeSelf()
 	composer.gotoScene( "ViewByCountryInfo", { time=800, effect="crossFade" } )	
-		
-	
 end
 
 --------------------------------------------------------------------------------
 -- Function for Go Back button
 --------------------------------------------------------------------------------
 local function goBack()
+	audio.play( soundTable["soundBack"] )
 	composer.gotoScene( "categoryMenuScene", { time=800, effect="crossFade" } )
 	defaultField:removeSelf()
-	composer.removeScene("ViewByRanking")
-		
-		
+	composer.removeScene("ViewByRanking")	
 end
 
 
@@ -341,7 +338,7 @@ function findChars(array,search)
 		}
 	)
 	
-		for i = 1, #foundArray do	-- we have 113 countries to populate in ranking chart everytime
+	for i = 1, #foundArray do	-- we have 113 countries to populate in ranking chart everytime
 
 		-- Create text and image content for a row in the scroll area
 	
@@ -590,7 +587,6 @@ function scene:show( event )
 
     if ( phase == "will" ) then
         -- Code here runs when the scene is still off screen (but is about to come on screen)
-		
 
     elseif ( phase == "did" ) then
         -- Code here runs when the scene is entirely on screen

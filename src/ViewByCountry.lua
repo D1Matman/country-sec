@@ -10,7 +10,8 @@ lastValue = 0
 -- -----------------------------------------------------------------------------------
 --***************************************Needs Memory Control!!!
 local function gotoViewByCountryData()
-    defaultField:removeSelf()
+    audio.play( soundTable["soundSelect"] )
+	defaultField:removeSelf()
 	composer.removeScene( "ViewByCountry" )
 	composer.gotoScene( "ViewByCountryInfo", { time=800, effect="crossFade" } )
 end
@@ -56,6 +57,7 @@ end
 -- GoBack
 --
 local function goBack()
+	audio.play( soundTable["soundBack"] )
 	defaultField:removeSelf()
 	-- Completely remove the scene, including its scene object
 	Runtime:removeEventListener( "touch", touchListener )
@@ -92,6 +94,7 @@ local function touchListener(event)
 				if (counter < 14)then
 					counter = 2
 				end
+				audio.play( soundTable["soundSwipe"] )
 				print(counter)
 				displayFlags()
 			end
@@ -101,6 +104,7 @@ local function touchListener(event)
 				if (counter > 113)then
 					counter = 2
 				end
+				audio.play( soundTable["soundSwipe"] )
 				print(counter)
 				displayFlags()
 			end
@@ -239,6 +243,8 @@ function findChars(array,search)
 
 	Runtime:removeEventListener( "touch", touchListener )
 	displayFSearch(foundArray)
+	
+	audio.play( soundTable["soundSelect"] ) -- affirmative sound that users search is complete
 	
 	if(flag ~= 1) then --Search term Not Found.
 		myText = display.newEmbossedText(debugGroup,"No results found.", 200, 200, 240, 300, native.systemFont, 22)

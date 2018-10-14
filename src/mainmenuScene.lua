@@ -9,15 +9,23 @@
 -----------------------------------------------------------------------------------------
 
 local composer = require( "composer" )
-
 local scene = composer.newScene()
+
+-- Load in menu button sound fx to be used globally by all screens
+soundTable = {
+	soundSelect = audio.loadSound( "button-select.wav" ),
+	soundBack = audio.loadSound( "button-back.wav" ),
+	soundSwipe = audio.loadSound( "swipe.wav" )
+}
 
 -- Functions for each button on screen
 local function gotoCountryList()
+	audio.play( soundTable["soundSelect"] )
 	composer.gotoScene( "ViewByCountry", { time=800, effect="crossFade" } )
 end
 
 local function gotoCategoryMenu()
+	audio.play( soundTable["soundSelect"] )
 	composer.gotoScene( "categoryMenuScene", { time=800, effect="crossFade" } )
 end
 

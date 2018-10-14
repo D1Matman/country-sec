@@ -1,5 +1,6 @@
 local composer = require( "composer" )
-local scene = composer.newScene()local widget = require( "widget" )
+local scene = composer.newScene()
+local widget = require( "widget" )
 local scene = composer.newScene()
  
 local prevScene = composer.getSceneName("previous") -- Get the last scene
@@ -17,6 +18,8 @@ local prevScene = composer.getSceneName("previous") -- Get the last scene
 --passing in the country's name to insert into the URL (note: but corona button functions dont play nice with argument params for some reason!)
 -----------------------------------------------------------------------------------
 local function gotoWebNews()
+	
+	audio.play( soundTable["soundSelect"] )
 	
 	-- create variable for countryname & init variable for URL string
 	local name = countryName
@@ -39,6 +42,7 @@ end
 --
 -----------------------------------------------------------------------------------
 local function goBack()
+	audio.play( soundTable["soundBack"] )
 	-- Completely remove the scene, including its scene object
     composer.removeScene( "ViewByCountryInfo" )
 	composer.gotoScene( prevScene, { time=800, effect="crossFade" } )
@@ -305,8 +309,10 @@ function scene:show( event )
  
     if ( phase == "will" ) then
         -- Code here runs when the scene is still off screen (but is about to come on screen)
+
     elseif ( phase == "did" ) then
         -- Code here runs when the scene is entirely on screen
+
     end
 end
  
