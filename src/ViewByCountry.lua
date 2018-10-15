@@ -6,6 +6,8 @@ counter = 0
 lastValue = 0
 backButton = ""
 sceneGroup = display.newGroup()
+crumbCount = 1
+
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
@@ -28,6 +30,8 @@ end
 local function goBack()
 	system.vibrate()
 	audio.play( soundTable["soundBack"] )
+	crumbGroup:removeSelf()
+	crumbGroup = nil
 	defaultField:removeSelf()
 	-- Completely remove the scene, including its scene object
 	Runtime:removeEventListener( "touch", touchListener )
@@ -50,7 +54,19 @@ function handleFlagButton (event,self)
 	gotoViewByCountryData()		
 end
 
-
+---------------------------
+-- Page Breadcrumbs Display 
+--
+function pageBreadCrumb (crumbCount)
+	display.remove( crumbGroup ) -- checks if object exists, and removes it if it does.
+	crumbGroup = nil
+	crumbGroup = display.newGroup() -- fresh object
+	local crumbFile = "crumb"..crumbCount..".png"
+	local crumbImage = display.newImageRect(crumbGroup, crumbFile, 86, 16 )
+	crumbImage.x = display.contentCenterX
+	crumbImage.y = display.contentCenterY + 261
+	sceneGroup:insert( crumbGroup )
+end
 
 ------------------------
 --Swipe
@@ -66,10 +82,19 @@ local function touchListener(event)
 	elseif phase == "ended" then
 		local eventXMove = (event.xStart - event.x)*-1
 		local eventYMove = (event.yStart - event.y)*-1
+		crumbCount = crumbCount
+
 		if (eventXMove ~= lastValue)then
 			if(eventXMove > 130) then
 				print("Over 130 -- Move LEFT"..eventXMove)
 				lastValue = eventXMove
+				
+				if (crumbCount > 1) then
+					crumbCount = crumbCount - 1
+				else
+					crumbCount = 8
+				end
+				
 				print(counter)
 				counter = counter - 30
 				if (counter == 85)then
@@ -88,6 +113,13 @@ local function touchListener(event)
 			if(eventXMove < -130 ) then
 				print("Over -130 -- Move RIGHT"..eventXMove)
 				lastValue = eventXMove
+				
+				if (crumbCount < 8) then
+					crumbCount = crumbCount + 1
+				else
+					crumbCount = 1
+				end
+				
 				if (counter > 113)then
 					counter = 2
 				end
@@ -95,7 +127,10 @@ local function touchListener(event)
 				print(counter)
 				displayFlags()
 			end
-		end
+			
+			pageBreadCrumb(crumbCount)
+			
+		end		
 	end
 end
 
@@ -122,6 +157,10 @@ local function textListener( event )
 	-- Enter letter is entered on the phone keyboard.
 	if (  event.phase == "submitted" ) then
 
+		--Remove crumbs and reset crumb count for next use
+		display.remove( object )
+		crumbCount = 1
+	
 		--Remove ButtonGroup and start another. Clears the results text. 
 		display.remove( ButtonGroup )
 		ButtonGroup = nil
@@ -135,12 +174,12 @@ local function textListener( event )
 			findChars(CountryArray, anotherString)
 			defaultField.text = ""
 	
-			else -- Text box is empty
-				counter = 2
-				Runtime:addEventListener("touch", touchListener)
-				displayFlags()
-		end	
-
+		else -- Text box is empty
+			counter = 2
+			Runtime:addEventListener("touch", touchListener)
+			pageBreadCrumb (crumbCount)
+			displayFlags()
+		end			
 	end
 end
 
@@ -233,6 +272,8 @@ function findChars(array,search)
 	displayFSearch(foundArray)
 	
 	audio.play( soundTable["soundSelect"] ) -- affirmative sound that users search is complete
+	display.remove( crumbGroup ) -- remove crumbs, they are not relevant for search results
+	crumbCount = 1 --reset crumb counter for next time its used
 	
 	if(flag ~= 1) then --Search term Not Found.
 		myText = display.newEmbossedText(debugGroup,"No results found.", 200, 200, 240, 300, native.systemFont, 22)
@@ -246,18 +287,18 @@ end
 --Display flags from search
 --
 function displayFSearch(arr)
-Runtime:removeEventListener( "touch", touchListener )
-local posiArray = {	display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
-					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
-					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
-					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
-					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100} 	
-Runtime:removeEventListener( "touch", touchListener )
-CountryArray = makeArray(country)
-displayArray = rawArray(country)
-display.remove( flagGroup )
-flagGroup = nil
-flagGroup = display.newGroup()
+	Runtime:removeEventListener( "touch", touchListener )
+	local posiArray = {	display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
+						display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
+						display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
+						display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
+						display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100} 	
+	Runtime:removeEventListener( "touch", touchListener )
+	CountryArray = makeArray(country)
+	displayArray = rawArray(country)
+	display.remove( flagGroup )
+	flagGroup = nil
+	flagGroup = display.newGroup()
 		
 	for i = 1, #arr   do
 
@@ -283,7 +324,7 @@ flagGroup = display.newGroup()
 		image3.x = (posiArray[i])
 		image3.y = yaxis
 		--print(someString)
-		
+	
 		image3.id = arr[i]
 		print("ARRAY I "..arr[i])
 		image3:addEventListener( "tap", handleFlagButton )
@@ -298,20 +339,20 @@ end
 --Display Flags
 --
 function displayFlags()
-local posiArray ={	display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
-					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
-					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
-					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
-					display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100} 	
+	local posiArray ={	display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
+						display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
+						display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
+						display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
+						display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100} 	
 
-CountryArray = makeArray(country)
-displayArray = rawArray(country)
-display.remove( flagGroup )
-flagGroup = nil
-flagGroup = display.newGroup()		
---Next lot of flags		
-i = 1
---print("For loopStart",counter)
+	CountryArray = makeArray(country)
+	displayArray = rawArray(country)
+	display.remove( flagGroup )
+	flagGroup = nil
+	flagGroup = display.newGroup()
+	--Next lot of flags		
+	i = 1
+	--print("For loopStart",counter)
 	for counter = counter, counter + 14 do
 		if(counter > 114)then 				
 			break
@@ -344,6 +385,7 @@ i = 1
 		flagGroup:insert(text2)
 		i = i + 1		
 	end
+	
 	counter = counter + (i-1)
 	sceneGroup:insert( flagGroup )
 end
@@ -398,7 +440,7 @@ function handleButtonEvent( event,self )
 			DataString = DataString:gsub("%a", string.upper,1)
 			local id = SectionString.." = "..DataString --Concat output to display
 			
--- Insert a row into the tableView
+			-- Insert a row into the tableView
 			tableView:insertRow(
 				{
 					isCategory = isCategory,
@@ -427,6 +469,10 @@ function scene:create( event )
 	local bg2 = display.newRect( bg2X, bg2Y, display.contentWidth, display.contentHeight + 100 )
 	bg2.fill = { type="image", filename="bg_blue.jpg" }
 	sceneGroup:insert( bg2 )
+	
+	--default to page 1 breadcrumb on entry
+	pageBreadCrumb(crumbCount)
+	
 	-- Vars             ---------------------------------------------Double check these Vars
 	CountryArray = {}
 	CountryToDisplay = {}
@@ -439,47 +485,47 @@ function scene:create( event )
 	debugGroup = display.newGroup()
 	
 
-flagGroup = display.newGroup()
-backLayer = display.newGroup()
+	flagGroup = display.newGroup()
+	backLayer = display.newGroup()
 
-local background = display.newImage(backLayer, "bg_map_dotted.png", 30, 140)
+	local background = display.newImage(backLayer, "bg_map_dotted.png", 30, 140)
 
 
---SearchTitle = display.newText(backLayer,"Search",display.contentCenterX,0, 0, 0, native.systemFont, 14)
---SearchTitle:setFillColor( 1, 1, 1 )					
+	--SearchTitle = display.newText(backLayer,"Search",display.contentCenterX,0, 0, 0, native.systemFont, 14)
+	--SearchTitle:setFillColor( 1, 1, 1 )					
 
--- Button widget for the Go Back button
-backButton = widget.newButton(
-	{
-		--onRelease = goBack,
-		x = 29,
-		y = 500,
-		width = 40,
-		height = 40,
-		defaultFile = "backButtonDefault.png",
-		overFile = "backButtonPressed.png"
-	}
-)
-backLayer:insert(backButton)
+	-- Button widget for the Go Back button
+	backButton = widget.newButton(
+		{
+			--onRelease = goBack,
+			x = 29,
+			y = 500,
+			width = 40,
+			height = 40,
+			defaultFile = "backButtonDefault.png",
+			overFile = "backButtonPressed.png"
+		}
+	)
+	backLayer:insert(backButton)
 
--- Open File
-local path = system.pathForFile( "wjp.csv", system.ResourceDirectory )
-local file = io.open(path, "r")
-if file then
-	print("File Found")
-	country = file:read("*l")
-	io.close (file)
-	print("File Loaded Ok")
-	else
-		print("Not working") --No file/Error/file Open
-end
+	-- Open File
+	local path = system.pathForFile( "wjp.csv", system.ResourceDirectory )
+	local file = io.open(path, "r")
+	if file then
+		print("File Found")
+		country = file:read("*l")
+		io.close (file)
+		print("File Loaded Ok")
+		else
+			print("Not working") --No file/Error/file Open
+	end
 
--- Display Flags
-displayFlags()
--- insert my display objects 
-sceneGroup:insert( backLayer )
-sceneGroup:insert( flagGroup )
-Runtime:addEventListener("touch", touchListener)
+	-- Display Flags
+	displayFlags()
+	-- insert my display objects 
+	sceneGroup:insert( backLayer )
+	sceneGroup:insert( flagGroup )
+	Runtime:addEventListener("touch", touchListener)
 
 end
 
@@ -514,7 +560,7 @@ function scene:hide( event )
 				display.remove( debugGroup )
 			dubugGroup = nil
 		backButton:removeEventListener("tap", goBack)
-	
+		
     elseif ( phase == "did" ) then
         -- Code here runs immediately after the scene goes entirely off screen
 		
