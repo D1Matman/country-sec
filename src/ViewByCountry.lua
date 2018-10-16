@@ -107,6 +107,7 @@ local function touchListener(event)
 					counter = 2
 				end
 				audio.play( soundTable["soundSwipe"] )
+				pageBreadCrumb(crumbCount)
 				print(counter)
 				displayFlags()
 			end
@@ -124,13 +125,11 @@ local function touchListener(event)
 					counter = 2
 				end
 				audio.play( soundTable["soundSwipe"] )
+				pageBreadCrumb(crumbCount)
 				print(counter)
 				displayFlags()
 			end
-			
-			pageBreadCrumb(crumbCount)
-			
-		end		
+		end
 	end
 end
 
