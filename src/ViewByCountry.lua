@@ -58,7 +58,7 @@ end
 -- Page Breadcrumbs Display 
 --
 function pageBreadCrumb (crumbCount)
-	display.remove( crumbGroup ) -- checks if object exists, and removes it if it does.
+	display.remove( crumbGroup ) -- checks if object exists first, and removes if it does.
 	crumbGroup = nil
 	crumbGroup = display.newGroup() -- fresh object
 	local crumbFile = "crumb"..crumbCount..".png"
@@ -157,8 +157,7 @@ local function textListener( event )
 	-- Enter letter is entered on the phone keyboard.
 	if (  event.phase == "submitted" ) then
 
-		--Remove crumbs and reset crumb count for next use
-		display.remove( object )
+		--Reset crumbs for next use
 		crumbCount = 1
 	
 		--Remove ButtonGroup and start another. Clears the results text. 
@@ -179,7 +178,8 @@ local function textListener( event )
 			Runtime:addEventListener("touch", touchListener)
 			pageBreadCrumb (crumbCount)
 			displayFlags()
-		end			
+		end
+		audio.play( soundTable["soundSelect"] ) -- affirmative sound that users search is complete		
 	end
 end
 
@@ -271,9 +271,7 @@ function findChars(array,search)
 	Runtime:removeEventListener( "touch", touchListener )
 	displayFSearch(foundArray)
 	
-	audio.play( soundTable["soundSelect"] ) -- affirmative sound that users search is complete
 	display.remove( crumbGroup ) -- remove crumbs, they are not relevant for search results
-	crumbCount = 1 --reset crumb counter for next time its used
 	
 	if(flag ~= 1) then --Search term Not Found.
 		myText = display.newEmbossedText(debugGroup,"No results found.", 200, 200, 240, 300, native.systemFont, 22)
