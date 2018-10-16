@@ -85,8 +85,8 @@ local function touchListener(event)
 		crumbCount = crumbCount
 
 		if (eventXMove ~= lastValue)then
-			if(eventXMove > 130) then
-				print("Over 130 -- Move LEFT"..eventXMove)
+			if(eventXMove > 100) then
+				print("Over 100 -- Move LEFT"..eventXMove)
 				lastValue = eventXMove
 				
 				if (crumbCount > 1) then
@@ -107,11 +107,12 @@ local function touchListener(event)
 					counter = 2
 				end
 				audio.play( soundTable["soundSwipe"] )
+				pageBreadCrumb(crumbCount)
 				print(counter)
 				displayFlags()
 			end
-			if(eventXMove < -130 ) then
-				print("Over -130 -- Move RIGHT"..eventXMove)
+			if(eventXMove < -100 ) then
+				print("Over -100 -- Move RIGHT"..eventXMove)
 				lastValue = eventXMove
 				
 				if (crumbCount < 8) then
@@ -124,13 +125,11 @@ local function touchListener(event)
 					counter = 2
 				end
 				audio.play( soundTable["soundSwipe"] )
+				pageBreadCrumb(crumbCount)
 				print(counter)
 				displayFlags()
 			end
-			
-			pageBreadCrumb(crumbCount)
-			
-		end		
+		end
 	end
 end
 
