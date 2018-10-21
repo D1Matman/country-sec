@@ -234,8 +234,9 @@ function textListener( event )
 	
 		else -- Text box is empty
 			counter = 2
-		
+			crumbCount = 1
 			pageBreadCrumb (crumbCount)
+			Runtime:addEventListener( "touch", touchListener )
 			displayFlags()
 		end
 		audio.play( soundTable["soundSelect"] ) -- affirmative sound that users search is complete		
@@ -572,13 +573,8 @@ function scene:show( event )
         -- Code here runs when the scene is entirely on screen
 		pageBreadCrumb(crumbCount)
 		backButton:addEventListener("tap", goBack) 
-		justSearched = 0
-		if (justSearched == 0) then
 			Runtime:addEventListener( "touch", touchListener )
-			
-		else
-			Runtime:removeEventListener( "touch", touchListener )
-		end
+
     end
 end
  
