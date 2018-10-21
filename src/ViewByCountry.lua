@@ -1,5 +1,6 @@
 local composer = require( "composer" )
-local scene = composer.newScene()local widget = require( "widget" )
+local scene = composer.newScene()
+local widget = require( "widget" )
 
 defaultField = display.newGroup()
 counter = 0
@@ -7,181 +8,104 @@ lastValue = 0
 backButton = ""
 sceneGroup = display.newGroup()
 crumbCount = 1
-
+justSearched = 0
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 --***************************************Needs Memory Control!!!
-local function gotoViewByCountryData()
-    audio.play( soundTable["soundSelect"] )
-	defaultField:removeSelf()
-	--composer.removeScene( "ViewByCountry" )
-	composer.gotoScene( "ViewByCountryInfo", { time=800, effect="crossFade" } )
-end
 
--- -----------------------------------------------------------------------------------
--- Scene event functions
--- -----------------------------------------------------------------------------------
- 
- ----------------------
--- GoBack
+----------------------------
+--Display Flags
 --
-local function goBack()
-	system.vibrate()
-	audio.play( soundTable["soundBack"] )
-	crumbGroup:removeSelf()
-	crumbGroup = nil
-	defaultField:removeSelf()
-	-- Completely remove the scene, including its scene object
-	Runtime:removeEventListener( "touch", touchListener )
-    composer.removeScene( "ViewByCountry" )
-	composer.gotoScene( "mainmenuScene", { time=800, effect="crossFade" } )
-end
 
----------------------------------------------------------------------FUNCTIONS--------------------------------------------
--------------------------
--- Handle Next Button
---
-function handleFlagButton (event,self)
-	system.vibrate()
-	Runtime:removeEventListener( "touch", touchListener )
-	print(event.target.id)
-	print(CountryArray[event.target.id])
-	composer.setVariable( "countryID", event.target.id )
-	composer.setVariable( "countryString", CountryArray[event.target.id] )
-	composer.setVariable( "countryDisplayString", displayArray[event.target.id] )
-	gotoViewByCountryData()		
-end
 
----------------------------
--- Page Breadcrumbs Display 
---
-function pageBreadCrumb (crumbCount)
-	display.remove( crumbGroup ) -- checks if object exists first, and removes if it does.
-	crumbGroup = nil
-	crumbGroup = display.newGroup() -- fresh object
-	local crumbFile = "crumb"..crumbCount..".png"
-	local crumbImage = display.newImageRect(crumbGroup, crumbFile, 86, 16 )
-	crumbImage.x = display.contentCenterX
-	crumbImage.y = display.contentCenterY + 261
-	sceneGroup:insert( crumbGroup )
-end
-
-------------------------
---Swipe
---
-local function touchListener(event)
-	local phase=event.phase
-	
-	if phase == "began" then
-	
-	elseif phase == "moved" then
-		--print("event.x = "..event.x)
-		--print("event.y = "..event.y)
-	elseif phase == "ended" then
-		local eventXMove = (event.xStart - event.x)*-1
-		local eventYMove = (event.yStart - event.y)*-1
-		crumbCount = crumbCount
-
-		if (eventXMove ~= lastValue)then
-			if(eventXMove > 100) then
-				print("Over 100 -- Move LEFT"..eventXMove)
-				lastValue = eventXMove
-				
-				if (crumbCount > 1) then
-					crumbCount = crumbCount - 1
-				else
-					crumbCount = 8
-				end
-				
-				print(counter)
-				counter = counter - 30
-				if (counter == 85)then
-					counter = 92
-				end
-				if (counter < 2)then
-					counter = 107
-				end
-				if (counter < 14)then
-					counter = 2
-				end
-				audio.play( soundTable["soundSwipe"] )
-				pageBreadCrumb(crumbCount)
-				print(counter)
-				displayFlags()
-			end
-			if(eventXMove < -100 ) then
-				print("Over -100 -- Move RIGHT"..eventXMove)
-				lastValue = eventXMove
-				
-				if (crumbCount < 8) then
-					crumbCount = crumbCount + 1
-				else
-					crumbCount = 1
-				end
-				
-				if (counter > 113)then
-					counter = 2
-				end
-				audio.play( soundTable["soundSwipe"] )
-				pageBreadCrumb(crumbCount)
-				print(counter)
-				displayFlags()
+-------------------------------------
+--Make an Array - contains capitals
+--Ignors commas, "
+function rawArray (aString)
+	local constring = ""
+	local array = {}
+	for i = 0, #aString + 1 do
+		local c = aString:sub(i,i)
+		if (c~= "," and c ~= "\"") then --CSV separator and errors in Flat File
+			constring = (constring..c)
+		else
+			if(constring ~= "")then -- I am leaving this but it does nothing
+				array[#array + 1] = constring
+				constring = ""
+			else
+				constring = ""
 			end
 		end
 	end
+	array[#array + 1] = constring --One left in the array
+	return array
 end
 
---Get the text from the textbox ie the search term, TEXT TERM ENTERED
---Call findChars to get results 
--- Should: Clear Buttons, Clear Rows, Clear Debug
---
-local function textListener( event )
-	Runtime:removeEventListener( "touch", touchListener )
-	-- Clear Debug Group Remove form display
-	display.remove( debugGroup )
-	dubugGroup = nil
-	debugGroup = display.newGroup()
-	--Clear Button Group Remove form display
-	display.remove( ButtonGroup )
-	ButtonGroup = nil
-	ButtonGroup = display.newGroup()
-		
-		-- If there is a tableView on the screen at the moment. 
-		--Kill It/Remove it
-	if (FirstTimeFlag == 1) then
-		tableView:deleteAllRows()
-	end
-	-- Enter letter is entered on the phone keyboard.
-	if (  event.phase == "submitted" ) then
 
-		--Reset crumbs for next use
-		crumbCount = 1
+-- create()
+function scene:create( event )
 	
-		--Remove ButtonGroup and start another. Clears the results text. 
-		display.remove( ButtonGroup )
-		ButtonGroup = nil
-		ButtonGroup = display.newGroup()
-		
-		-- Get text string from text box
-		local someString = event.target.text
-		if someString ~= "" then
-			anotherString = string.lower(someString)
-			--Search Chars
-			findChars(CountryArray, anotherString)
-			defaultField.text = ""
+	sceneGroup = self.view
 	
-		else -- Text box is empty
-			counter = 2
-			Runtime:addEventListener("touch", touchListener)
-			pageBreadCrumb (crumbCount)
-			displayFlags()
+	
+	
+function displayFlags()
+	local posiArray ={	display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
+						display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
+						display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
+						display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
+						display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100} 	
+
+	CountryArray = makeArray(country)
+	displayArray = rawArray(country)
+	display.remove( flagGroup )
+	flagGroup = nil
+	flagGroup = display.newGroup()
+	image2 = display.newGroup()
+	--Next lot of flags		
+	i = 1
+	--print("For loopStart",counter)
+	for counter = counter, counter + 14 do
+		if(counter > 114)then 				
+			break
 		end
-		audio.play( soundTable["soundSelect"] ) -- affirmative sound that users search is complete		
+		if (i < 4) then
+			yaxis = 80
+		end
+		if(i > 3 and i < 7)then
+			yaxis = 160
+		end
+		if(i > 6 and i < 10)then
+			yaxis = 240
+		end
+		if(i > 9 and i < 13)then
+			yaxis = 320
+		end
+			if(i > 12)then
+			yaxis = 400
+		end
+		
+		someString = "flags/"..CountryArray[counter]..".png" 
+		image2 = display.newImageRect(flagGroup,someString, 50, 50)
+		text2 = display.newEmbossedText(flagGroup,displayArray[counter],posiArray[i] +20,yaxis + 35,90,0,native.systemFont,13)
+		image2.x = (posiArray[i])
+		image2.y = yaxis
+		--print(someString)
+		image2.id = counter
+		image2:addEventListener( "tap", handleFlagButton )
+		flagGroup:insert(image2)
+		flagGroup:insert(text2)
+		i = i + 1		
 	end
+	
+	counter = counter + (i-1)
+	sceneGroup:insert( flagGroup )
 end
-
+	
+----------------------------------------------------------------Fuctions End--------------------------------------------	
+------------------------------------------------------------------------------------------------------------------------
 ---------------------------
 --Make a Country Array
 --Ignors commas, "
@@ -205,30 +129,120 @@ function makeArray (aString)
 	array[#array + 1] = constring --One left in the array
 	return array
 end
-
--------------------------------------
---Make an Array - contains capitals
---Ignors commas, "
---
-function rawArray (aString)
-	local constring = ""
-	local array = {}
-	for i = 0, #aString + 1 do
-		local c = aString:sub(i,i)
-		if (c~= "," and c ~= "\"") then --CSV separator and errors in Flat File
-			constring = (constring..c)
-		else
-			if(constring ~= "")then -- I am leaving this but it does nothing
-				array[#array + 1] = constring
-				constring = ""
-			else
-				constring = ""
-			end
-		end
-	end
-	array[#array + 1] = constring --One left in the array
-	return array
+	
+	
+	
+local function gotoViewByCountryData()
+	Runtime:removeEventListener( "touch", touchListener )
+		
+    audio.play( soundTable["soundSelect"] )
+	--defaultField:removeSelf()
+	--composer.removeScene( "ViewByCountry" )
+	composer.gotoScene( "ViewByCountryInfo", { time=800, effect="crossFade" } )
 end
+
+-- -----------------------------------------------------------------------------------
+-- Scene event functions
+-- -----------------------------------------------------------------------------------
+ 
+ ----------------------
+-- GoBack
+--
+function goBack()
+	Runtime:removeEventListener( "touch", touchListener )
+	system.vibrate()
+	audio.play( soundTable["soundBack"] )
+	--crumbGroup:removeSelf()
+	--crumbGroup = nil
+	defaultField:removeSelf()
+	-- Completely remove the scene, including its scene object
+	
+    composer.removeScene( "ViewByCountry" )
+	composer.gotoScene( "mainmenuScene", { time=800, effect="crossFade" } )
+end
+
+---------------------------------------------------------------------FUNCTIONS--------------------------------------------
+-------------------------
+-- Handle Next Button
+--
+function handleFlagButton (event,self)
+	Runtime:removeEventListener( "touch", touchListener )
+	system.vibrate()
+	print(event.target.id)
+	print(CountryArray[event.target.id])
+	composer.setVariable( "countryID", event.target.id )
+	composer.setVariable( "countryString", CountryArray[event.target.id] )
+	composer.setVariable( "countryDisplayString", displayArray[event.target.id] )
+	gotoViewByCountryData()		
+end
+
+---------------------------
+-- Page Breadcrumbs Display 
+--
+function pageBreadCrumb (crumbCount)
+	display.remove( crumbGroup ) -- checks if object exists first, and removes if it does.
+	crumbGroup = nil
+	crumbGroup = display.newGroup() -- fresh object
+	local crumbFile = "crumb"..crumbCount..".png"
+	local crumbImage = display.newImageRect(crumbGroup, crumbFile, 86, 16 )
+	crumbImage.x = display.contentCenterX
+	crumbImage.y = display.contentCenterY + 261
+	sceneGroup:insert( crumbGroup )
+end
+
+
+
+--Get the text from the textbox ie the search term, TEXT TERM ENTERED
+--Call findChars to get results 
+-- Should: Clear Buttons, Clear Rows, Clear Debug
+--
+function textListener( event )
+	Runtime:removeEventListener( "touch", touchListener )
+	justSearched = 1
+	-- Clear Debug Group Remove form display
+	display.remove( debugGroup )
+	dubugGroup = nil
+	debugGroup = display.newGroup()
+	--Clear Button Group Remove form display
+	display.remove( ButtonGroup )
+	ButtonGroup = nil
+	ButtonGroup = display.newGroup()
+		
+		-- If there is a tableView on the screen at the moment. 
+		--Kill It/Remove it
+	if (FirstTimeFlag == 1) then
+		tableView:deleteAllRows()
+	end
+	-- Enter letter is entered on the phone keyboard.
+	if (  event.phase == "submitted" ) then
+
+		--Reset crumbs for next use
+		--crumbCount = 1
+	
+		--Remove ButtonGroup and start another. Clears the results text. 
+		display.remove( ButtonGroup )
+		ButtonGroup = nil
+		ButtonGroup = display.newGroup()
+		
+		-- Get text string from text box
+		local someString = event.target.text
+		if someString ~= "" then
+			anotherString = string.lower(someString)
+			--Search Chars
+			findChars(CountryArray, anotherString)
+            defaultField.text = ""
+	
+		else -- Text box is empty
+			counter = 2
+			crumbCount = 1
+			pageBreadCrumb (crumbCount)
+			Runtime:addEventListener( "touch", touchListener )
+			displayFlags()
+		end
+		audio.play( soundTable["soundSelect"] ) -- affirmative sound that users search is complete		
+	end
+end
+
 
 -------------------------------------------------------------------
 --Search partial string, not case sensitive. ie "A" or "Aust" etc
@@ -242,6 +256,7 @@ function findChars(array,search)
 	local flag = 0
 	local foundArray= {}
 	k = 1
+	Runtime:removeEventListener( "touch", touchListener )
 	--Comapare each charater in the string, count the matches
 	for i = 2, #array  do --Start at index 2 to disclude the headers ie Country, Country Code etc.**WALK AROUND!!
 		local success = 0
@@ -267,16 +282,22 @@ function findChars(array,search)
 		end		
 	end
 
-	Runtime:removeEventListener( "touch", touchListener )
-	displayFSearch(foundArray)
 	
-	display.remove( crumbGroup ) -- remove crumbs, they are not relevant for search results
+	--displayFSearch(foundArray)--<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	--defaultField:removeSelf()
+	
+	--display.remove( crumbGroup ) -- remove crumbs, they are not relevant for search results
 	
 	if(flag ~= 1) then --Search term Not Found.
-		myText = display.newEmbossedText(debugGroup,"No results found.", 200, 200, 240, 300, native.systemFont, 22)
+		myText = display.newEmbossedText(debugGroup,"No results found.", 200, 180, 240, 300, native.systemFont, 18)
 		myText:setFillColor( 1, 1, 1 )
 		debugGroup:insert(myText)
 		sceneGroup:insert(debugGroup)
+		Runtime:addEventListener( "touch", touchListener )
+		else
+		composer.setVariable( "foundItArray", foundArray )
+		composer.gotoScene( "ViewByCountrySearch", { time=800, effect="crossFade" } )
+
 	end
 end
 
@@ -290,7 +311,7 @@ function displayFSearch(arr)
 						display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
 						display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
 						display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100} 	
-	Runtime:removeEventListener( "touch", touchListener )
+	
 	CountryArray = makeArray(country)
 	displayArray = rawArray(country)
 	display.remove( flagGroup )
@@ -332,67 +353,14 @@ function displayFSearch(arr)
 	sceneGroup:insert( flagGroup )
 end
 
-----------------------------
---Display Flags
---
-function displayFlags()
-	local posiArray ={	display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
-						display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
-						display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
-						display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100,
-						display.contentCenterX - 100, display.contentCenterX , display.contentCenterX + 100} 	
-
-	CountryArray = makeArray(country)
-	displayArray = rawArray(country)
-	display.remove( flagGroup )
-	flagGroup = nil
-	flagGroup = display.newGroup()
-	--Next lot of flags		
-	i = 1
-	--print("For loopStart",counter)
-	for counter = counter, counter + 14 do
-		if(counter > 114)then 				
-			break
-		end
-		if (i < 4) then
-			yaxis = 80
-		end
-		if(i > 3 and i < 7)then
-			yaxis = 160
-		end
-		if(i > 6 and i < 10)then
-			yaxis = 240
-		end
-		if(i > 9 and i < 13)then
-			yaxis = 320
-		end
-			if(i > 12)then
-			yaxis = 400
-		end
-		
-		someString = "flags/"..CountryArray[counter]..".png" 
-		image2 = display.newImageRect(flagGroup,someString, 50, 50)
-		text2 = display.newEmbossedText(flagGroup,displayArray[counter],posiArray[i] +20,yaxis + 35,90,0,native.systemFont,13)
-		image2.x = (posiArray[i])
-		image2.y = yaxis
-		--print(someString)
-		image2.id = counter
-		image2:addEventListener( "tap", handleFlagButton )
-		flagGroup:insert(image2)
-		flagGroup:insert(text2)
-		i = i + 1		
-	end
-	
-	counter = counter + (i-1)
-	sceneGroup:insert( flagGroup )
-end
 
 ------------------------------------
 -- Function to handle button events 
 -- Country Button Pressed!!!
 -- 
-function handleButtonEvent( event,self )
+local function handleButtonEvent( event,self )
 		Runtime:removeEventListener( "touch", touchListener )
+		
 		--clear DebugGroup Remove from Screen!
 		display.remove( debugGroup )
 		dubugGroup = nil
@@ -454,21 +422,83 @@ function handleButtonEvent( event,self )
 		return true  -- Prevents tap/touch propagation to underlying objects
 end
 	
-----------------------------------------------------------------Fuctions End--------------------------------------------	
-------------------------------------------------------------------------------------------------------------------------
-
-
--- create()
-function scene:create( event )
 	
-	sceneGroup = self.view
+	------------------------
+--Swipe
+--
+function touchListener(event)
+	local phase=event.phase
+	
+	if phase == "began" then
+	
+	elseif phase == "moved" then
+		--print("event.x = "..event.x)
+		--print("event.y = "..event.y)
+	elseif phase == "ended" then
+		local eventXMove = (event.xStart - event.x)*-1
+		local eventYMove = (event.yStart - event.y)*-1
+		crumbCount = crumbCount
+
+		if (eventXMove ~= lastValue)then
+			if(eventXMove > 100) then
+				print("Over 100 -- Move LEFT"..eventXMove)
+				lastValue = eventXMove
+				
+				if (crumbCount > 1) then
+					crumbCount = crumbCount - 1
+				else
+					crumbCount = 8
+				end
+				
+				print(counter)
+				counter = counter - 30
+				if (counter == 85)then
+					counter = 92
+				end
+				if (counter < 2)then
+					counter = 107
+				end
+				if (counter < 14)then
+					counter = 2
+				end
+				audio.play( soundTable["soundSwipe"] )
+				pageBreadCrumb(crumbCount)
+				print(counter)
+				displayFlags()
+			end
+			if(eventXMove < -100 ) then
+				print("Over -100 -- Move RIGHT"..eventXMove)
+				lastValue = eventXMove
+				
+				if (crumbCount < 8) then
+					crumbCount = crumbCount + 1
+				else
+					crumbCount = 1
+				end
+				
+				if (counter > 113)then
+					counter = 2
+				end
+				
+				audio.play( soundTable["soundSwipe"] )
+				pageBreadCrumb(crumbCount)
+				print(counter)
+				displayFlags()
+			end
+		end
+	end
+end
+
+	
+	
+	
 	local bg2X,bg2Y = display.contentCenterX, display.contentCenterY
 	local bg2 = display.newRect( bg2X, bg2Y, display.contentWidth, display.contentHeight + 100 )
 	bg2.fill = { type="image", filename="bg_blue.jpg" }
 	sceneGroup:insert( bg2 )
 	
 	--default to page 1 breadcrumb on entry
-	pageBreadCrumb(crumbCount)
+	
 	
 	-- Vars             ---------------------------------------------Double check these Vars
 	CountryArray = {}
@@ -522,7 +552,7 @@ function scene:create( event )
 	-- insert my display objects 
 	sceneGroup:insert( backLayer )
 	sceneGroup:insert( flagGroup )
-	Runtime:addEventListener("touch", touchListener)
+
 
 end
 
@@ -535,13 +565,16 @@ function scene:show( event )
  
     if ( phase == "will" ) then
         -- Code here runs when the scene is still off screen (but is about to come on screen)
-
-    elseif ( phase == "did" ) then
-        -- Code here runs when the scene is entirely on screen
+		defaultField = display.newGroup()
 		defaultField = native.newTextField( 160, 15, 180, 30 )
 		defaultField.placeholder = ( "Search" )
 		defaultField:addEventListener( "userInput", textListener )
+    elseif ( phase == "did" ) then
+        -- Code here runs when the scene is entirely on screen
+		pageBreadCrumb(crumbCount)
 		backButton:addEventListener("tap", goBack) 
+			Runtime:addEventListener( "touch", touchListener )
+
     end
 end
  
@@ -554,14 +587,16 @@ function scene:hide( event )
  
     if ( phase == "will" ) then
         -- Code here runs when the scene is on screen (but is about to go off screen)
-				display.remove( debugGroup )
-			dubugGroup = nil
+		display.remove( debugGroup )
+		defaultField:removeSelf()
+		dubugGroup = nil
 		backButton:removeEventListener("tap", goBack)
-		
+		Runtime:removeEventListener( "touch", touchListener )
+			
     elseif ( phase == "did" ) then
         -- Code here runs immediately after the scene goes entirely off screen
-		
-		
+	--
+		--defaultField:removeSelf()
     end
 end
  

@@ -23,6 +23,20 @@ local function gotoViewByRanking(event,self)
 	audio.play( soundTable["soundSelect"] )
 	print("****************************"..event.target.id)
 	composer.setVariable( "LineNumber", event.target.id )
+		if (event.target.id == 2) then
+		LabelString = "Overall Ranking";
+	elseif (event.target.id == 3)then
+		LabelString = "Government Accountability";
+	elseif (event.target.id == 14)then
+		LabelString = "Absence of Corruption"
+	elseif (event.target.id == 19)then
+		LabelString = "Fundamental Rights"
+	elseif (event.target.id == 28) then
+		LabelString = "Public Order & Security"
+	elseif (event.target.id == 32) then 
+		LabelString = "Civil & Criminal Justice"
+	end	
+	composer.setVariable("LineString", LabelString)
 	composer.gotoScene( "ViewByRanking", { time=800, effect="crossFade" } )
 	composer.removeScene( "categoryMenuScene" )
 end
