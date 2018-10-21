@@ -443,11 +443,19 @@ function scene:create( event )
 	uiGroup = display.newGroup()    -- Display group for UI objects
 	backLayer = display.newGroup()
 	scrollView = display.newGroup()
-	
+	local rowTitle = ""
 	-- Display blue background image
 	bg2X,bg2Y = display.contentCenterX, display.contentCenterY
 	bg2 = display.newRect( uiGroup, bg2X, bg2Y, display.contentWidth, display.contentHeight + 100 )
 	bg2.fill = { type="image", filename="bg_blue.jpg" }
+
+	titleString = composer.getVariable("LineString")
+	print(titleString.."LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL")
+	rowTitle = display.newEmbossedText(backLayer,titleString, display.contentCenterX + 15, display.contentCenterY - 190,270,0,native.systemFontBold, 18 )
+	rowTitle:setFillColor( 0.95, 0.95, 0 ) 
+	backLayer:insert(rowTitle)
+	
+	
 
 	----------------------------------------------------------------------------------------
 	-- Display textfield
@@ -582,7 +590,7 @@ function scene:create( event )
 	-- insert my display objects (grouped as "uiGroup") into the "sceneGroup"
 	sceneGroup:insert( uiGroup )
 	sceneGroup:insert( scrollView )
-		
+	sceneGroup:insert( backLayer )	
 end
 
 
