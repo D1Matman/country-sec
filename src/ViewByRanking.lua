@@ -261,7 +261,7 @@ local function textListener( event )
 			else -- Text box is empty
 				counter = 2
 				--displayFlags()
-				searchTitle = display.newEmbossedText( debugGroup,"Please Enter a search term",display.contentCenterX,60, 0, 0, native.systemFont, 14)
+				searchTitle = display.newEmbossedText( debugGroup,"Please Enter a search term",display.contentCenterX,66, 0, 0, native.systemFont, 14)
 				debugGroup:insert(searchTitle)
 		end	
 
@@ -310,7 +310,7 @@ function findChars(array,search)
 	end
 
 	if(#foundArray < 1) then
-		searchTitle = display.newEmbossedText( debugGroup,"No results found.",display.contentCenterX,60, 0, 0, native.systemFont, 14)
+		searchTitle = display.newEmbossedText( debugGroup,"No results found.",display.contentCenterX,66, 0, 0, native.systemFont, 14)
 		debugGroup:insert(searchTitle)
 		return
 	end
@@ -451,7 +451,7 @@ function scene:create( event )
 
 	titleString = composer.getVariable("LineString")
 	print(titleString.."LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL")
-	rowTitle = display.newEmbossedText(backLayer,titleString, display.contentCenterX + 15, display.contentCenterY - 190,270,0,native.systemFontBold, 18 )
+	rowTitle = display.newEmbossedText(backLayer,titleString, display.contentCenterX + 15, display.contentCenterY - 193,270,0,native.systemFontBold, 18 )
 	rowTitle:setFillColor( 0.95, 0.95, 0 ) 
 	backLayer:insert(rowTitle)
 	
