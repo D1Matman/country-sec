@@ -115,8 +115,8 @@ local background = display.newImage(backLayer1, "bg_map_dotted.png", 30, 140)
 
 backLayer1:insert(bg2)
 backLayer1:insert( background )
-rowTitle = display.newEmbossedText(backLayer1, "Results", bg2X, bg2Y - 240,0,0,native.systemFontBold, 28 )
-rowTitle:setFillColor( 0.95, 0.95, 0 ) -- major category
+rowTitle = display.newEmbossedText(backLayer1, "Search Results", bg2X, bg2Y - 224,0,0,native.systemFontBold, 20 )
+rowTitle:setFillColor( 1, 1, 1 ) -- major category
 backLayer1:insert( rowTitle )
 
 sceneGroup1:insert( backLayer1 ) -- One to rule them ALL !

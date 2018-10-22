@@ -261,7 +261,8 @@ local function textListener( event )
 			else -- Text box is empty
 				counter = 2
 				--displayFlags()
-				searchTitle = display.newEmbossedText( debugGroup,"Please Enter a search term",display.contentCenterX,66, 0, 0, native.systemFont, 14)
+				searchTitle = display.newEmbossedText( debugGroup,"Please enter a country name.",display.contentCenterX,37, 0, 0, native.systemFont, 12)
+				searchTitle:setFillColor( 1, 0.8, 0 )
 				debugGroup:insert(searchTitle)
 		end	
 
@@ -310,7 +311,8 @@ function findChars(array,search)
 	end
 
 	if(#foundArray < 1) then
-		searchTitle = display.newEmbossedText( debugGroup,"No results found.",display.contentCenterX,66, 0, 0, native.systemFont, 14)
+		searchTitle = display.newEmbossedText( debugGroup,"No matching countries found.",display.contentCenterX,37, 0, 0, native.systemFont, 12)
+		searchTitle:setFillColor( 1, 0.8, 0 )
 		debugGroup:insert(searchTitle)
 		return
 	end
@@ -450,9 +452,9 @@ function scene:create( event )
 	bg2.fill = { type="image", filename="bg_blue.jpg" }
 
 	titleString = composer.getVariable("LineString")
-	print(titleString.."LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL")
-	rowTitle = display.newEmbossedText(backLayer,titleString, display.contentCenterX + 15, display.contentCenterY - 193,270,0,native.systemFontBold, 18 )
-	rowTitle:setFillColor( 0.95, 0.95, 0 ) 
+	--print(titleString.."LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL")
+	rowTitle = display.newEmbossedText(backLayer,titleString, display.contentCenterX, display.contentCenterY - 186,0,0,native.systemFontBold, 16 )
+	rowTitle:setFillColor( 1, 1, 1 ) 
 	backLayer:insert(rowTitle)
 	
 	

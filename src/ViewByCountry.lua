@@ -289,8 +289,8 @@ function findChars(array,search)
 	--display.remove( crumbGroup ) -- remove crumbs, they are not relevant for search results
 	
 	if(flag ~= 1) then --Search term Not Found.
-		myText = display.newEmbossedText(debugGroup,"No results found.", 200, 180, 240, 300, native.systemFont, 18)
-		myText:setFillColor( 1, 1, 1 )
+		myText = display.newEmbossedText(debugGroup,"No matching countries found.", 200, 184, 240, 300, native.systemFont, 12)
+		myText:setFillColor( 1, 0.8, 0 )
 		debugGroup:insert(myText)
 		sceneGroup:insert(debugGroup)
 		Runtime:addEventListener( "touch", touchListener )
