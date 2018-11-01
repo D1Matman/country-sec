@@ -6,5 +6,4 @@ Tasked by a student client group to create what is essentially a "Global Securit
 
 Note to team: 
 - All development source files will be stored in "src" folder.
-- All compiled build versions will be stored in "build" folder -- for verifiable evidence of app dev progression.
 
